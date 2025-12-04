@@ -26,7 +26,12 @@ func main() {
 	if err := cli.Blueprints().Upsert(ctx, blueprints.Blueprint{
 		Identifier: blueprintID,
 		Title:      "Demo",
-		Schema:     map[string]any{"properties": map[string]any{"name": map[string]any{"type": "string"}}},
+		Schema: map[string]any{
+			"properties": map[string]any{
+				"name":  map[string]any{"type": "string"},
+				"owner": map[string]any{"type": "string"},
+			},
+		},
 	}); err != nil {
 		log.Fatal(err)
 	}
@@ -34,5 +39,13 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("blueprint %s has %d properties\n", bp.Identifier, len(bp.Schema))
+	if schema, ok := bp.Schema["properties"].(map[string]any); ok {
+		fmt.Printf("blueprint %s properties:\n", bp.Identifier)
+		for name, def := range schema {
+			fmt.Printf("  - %s: %v\n", name, def)
+		}
+		fmt.Printf("total properties: %d\n", len(schema))
+	} else {
+		fmt.Printf("blueprint %s has no properties\n", bp.Identifier)
+	}
 }

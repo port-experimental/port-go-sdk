@@ -2,9 +2,12 @@ package entities
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/url"
 	"strconv"
+
+	"github.com/port-experimental/port-go-sdk/pkg/porter"
 )
 
 // Service handles entity endpoints.
@@ -41,8 +44,25 @@ type ListOptions struct {
 
 // ListResponse wraps entity lists.
 type ListResponse struct {
-	Data       []Entity              `json:"data"`
+	Data       []Entity               `json:"data"`
 	Pagination map[string]interface{} `json:"pagination,omitempty"`
+}
+
+// Create creates a new entity.
+func (s *Service) Create(ctx context.Context, blueprint string, ent Entity) error {
+	path := fmt.Sprintf("/v1/blueprints/%s/entities", url.PathEscape(blueprint))
+	payload := map[string]any{
+		"identifier": ent.Identifier,
+		"properties": ent.Properties,
+	}
+	if len(ent.Relations) > 0 {
+		rel := make(map[string]any, len(ent.Relations))
+		for k, v := range ent.Relations {
+			rel[k] = v
+		}
+		payload["relations"] = rel
+	}
+	return s.doer.Do(ctx, "POST", path, payload, nil)
 }
 
 // Upsert creates or updates an entity.
@@ -51,7 +71,13 @@ func (s *Service) Upsert(ctx context.Context, blueprint string, ent Entity) erro
 	payload := map[string]any{
 		"identifier": ent.Identifier,
 		"properties": ent.Properties,
-		"relations":  ent.Relations,
+	}
+	if len(ent.Relations) > 0 {
+		rel := make(map[string]any, len(ent.Relations))
+		for k, v := range ent.Relations {
+			rel[k] = v
+		}
+		payload["relations"] = rel
 	}
 	return s.doer.Do(ctx, "POST", path, payload, nil)
 }
@@ -95,11 +121,18 @@ func (s *Service) List(ctx context.Context, blueprint string, opts *ListOptions)
 
 // Update applies a partial update to entity properties (merge=true).
 func (s *Service) Update(ctx context.Context, blueprint, identifier string, properties map[string]any) error {
-	path := fmt.Sprintf("/v1/blueprints/%s/entities/%s?merge=true", url.PathEscape(blueprint), url.PathEscape(identifier))
+	path := fmt.Sprintf("/v1/blueprints/%s/entities/%s", url.PathEscape(blueprint), url.PathEscape(identifier))
 	payload := map[string]any{
 		"properties": properties,
 	}
-	return s.doer.Do(ctx, "PATCH", path, payload, nil)
+	if err := s.doer.Do(ctx, "PATCH", path, payload, nil); err != nil {
+		var perr *porter.Error
+		if errors.As(err, &perr) && perr.StatusCode == 422 {
+			return s.doer.Do(ctx, "PUT", path, payload, nil)
+		}
+		return err
+	}
+	return nil
 }
 
 // LinkRelation links targets to a relation.
