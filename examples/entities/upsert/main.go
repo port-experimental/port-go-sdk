@@ -21,14 +21,18 @@ func main() {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
+	const (
+		blueprintID = "example_blueprint"
+		entityID    = "example_entity"
+	)
 	ent := entities.Entity{
-		Identifier: "demo",
+		Identifier: entityID,
 		Properties: map[string]any{
 			"name": "Demo Entity",
 		},
 	}
-	if err := c.Entities().Upsert(ctx, "demo", ent); err != nil {
+	if err := c.Entities().Upsert(ctx, blueprintID, ent); err != nil {
 		log.Fatal(err)
 	}
-	log.Println("upsert succeeded")
+	log.Println("entity upsert succeeded")
 }
