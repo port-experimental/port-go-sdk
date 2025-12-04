@@ -20,8 +20,8 @@ func main() {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
-	if err := cli.Blueprints().Delete(ctx, "demo_blueprint"); err != nil {
+	if err := cli.Blueprints().Delete(ctx, "example_blueprint"); err != nil {
 		log.Fatal(err)
 	}
-	log.Println("blueprint deleted")
+	log.Println("blueprint example_blueprint deleted")
 }

@@ -22,14 +22,15 @@ func main() {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
+	const blueprintID = "example_blueprint"
 	if err := cli.Blueprints().Upsert(ctx, blueprints.Blueprint{
-		Identifier: "demo_blueprint",
+		Identifier: blueprintID,
 		Title:      "Demo",
 		Schema:     map[string]any{"properties": map[string]any{"name": map[string]any{"type": "string"}}},
 	}); err != nil {
 		log.Fatal(err)
 	}
-	bp, err := cli.Blueprints().Get(ctx, "demo_blueprint")
+	bp, err := cli.Blueprints().Get(ctx, blueprintID)
 	if err != nil {
 		log.Fatal(err)
 	}
