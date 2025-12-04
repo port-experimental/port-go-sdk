@@ -16,13 +16,13 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	cli, err := client.New(cfg)
+	apiClient, err := client.New(cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
-	users, err := cli.Users().ListUsers(ctx)
+	users, err := apiClient.Users().ListUsers(ctx)
 	if err != nil {
 		log.Fatal(err)
 	}

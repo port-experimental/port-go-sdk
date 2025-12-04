@@ -15,7 +15,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	cli, err := client.New(cfg)
+	apiClient, err := client.New(cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -29,7 +29,7 @@ func main() {
 			"url": "https://ingest.getport.io/example",
 		},
 	}
-	if err := cli.DataSources().Create(ctx, ds); err != nil {
+	if err := apiClient.DataSources().Create(ctx, ds); err != nil {
 		log.Fatal(err)
 	}
 	log.Println("data source created")

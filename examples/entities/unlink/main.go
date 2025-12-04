@@ -14,7 +14,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	cli, err := client.New(cfg)
+	apiClient, err := client.New(cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -25,7 +25,7 @@ func main() {
 		blueprintID = "example_blueprint"
 		entityID    = "example_entity"
 	)
-	if err := cli.Entities().UnlinkRelation(ctx, blueprintID, entityID, "owner", []string{"user:123"}); err != nil {
+	if err := apiClient.Entities().UnlinkRelation(ctx, blueprintID, entityID, "owner", []string{"user:123"}); err != nil {
 		log.Fatal(err)
 	}
 	log.Println("relation unlinked")

@@ -15,13 +15,13 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	cli, err := client.New(cfg)
+	apiClient, err := client.New(cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
-	ds, err := cli.DataSources().Get(ctx, "webhook_id")
+	ds, err := apiClient.DataSources().Get(ctx, "webhook_id")
 	if err != nil {
 		log.Fatal(err)
 	}

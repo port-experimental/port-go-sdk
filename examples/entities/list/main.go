@@ -16,7 +16,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	cli, err := client.New(cfg)
+	apiClient, err := client.New(cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -25,7 +25,7 @@ func main() {
 
 	blueprints := []string{"example_blueprint", "example_feature_blueprint"}
 	for _, bp := range blueprints {
-		resp, err := cli.Entities().List(ctx, bp, &entities.ListOptions{
+		resp, err := apiClient.Entities().List(ctx, bp, &entities.ListOptions{
 			Limit: 20,
 		})
 		if err != nil {

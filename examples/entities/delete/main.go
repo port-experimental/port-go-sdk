@@ -16,7 +16,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	cli, err := client.New(cfg)
+	apiClient, err := client.New(cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -30,7 +30,7 @@ func main() {
 		{"example_feature_blueprint", "example_feature"},
 	}
 	for _, target := range targets {
-		if err := cli.Entities().Delete(ctx, target.Blueprint, target.Entity); err != nil {
+		if err := apiClient.Entities().Delete(ctx, target.Blueprint, target.Entity); err != nil {
 			var perr *porter.Error
 			if errors.As(err, &perr) && perr.StatusCode == 404 {
 				log.Printf("entity %s already absent from %s\n", target.Entity, target.Blueprint)

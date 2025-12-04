@@ -16,7 +16,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	cli, err := client.New(cfg)
+	apiClient, err := client.New(cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -45,7 +45,7 @@ func main() {
 		},
 	}
 	for _, target := range targets {
-		if err := cli.Entities().Update(ctx, target.Blueprint, target.Entity, target.Patch); err != nil {
+		if err := apiClient.Entities().Update(ctx, target.Blueprint, target.Entity, target.Patch); err != nil {
 			var perr *porter.Error
 			if errors.As(err, &perr) && perr.StatusCode == 404 {
 				log.Printf("entity %s not found in %s\n", target.Entity, target.Blueprint)

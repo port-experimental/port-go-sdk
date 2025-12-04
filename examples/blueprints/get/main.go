@@ -16,14 +16,14 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	cli, err := client.New(cfg)
+	apiClient, err := client.New(cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 	const blueprintID = "example_blueprint"
-	if err := cli.Blueprints().Upsert(ctx, blueprints.Blueprint{
+	if err := apiClient.Blueprints().Upsert(ctx, blueprints.Blueprint{
 		Identifier: blueprintID,
 		Title:      "Demo",
 		Schema: map[string]any{
@@ -35,7 +35,7 @@ func main() {
 	}); err != nil {
 		log.Fatal(err)
 	}
-	bp, err := cli.Blueprints().Get(ctx, blueprintID)
+	bp, err := apiClient.Blueprints().Get(ctx, blueprintID)
 	if err != nil {
 		log.Fatal(err)
 	}

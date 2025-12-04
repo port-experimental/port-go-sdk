@@ -14,14 +14,14 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	cli, err := client.New(cfg)
+	apiClient, err := client.New(cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 	// Placeholders for user_id and role_id need to filled when executing
-	if err := cli.Users().AssignRole(ctx, "user_id", "role_id"); err != nil {
+	if err := apiClient.Users().AssignRole(ctx, "user_id", "role_id"); err != nil {
 		log.Fatal(err)
 	}
 	log.Println("role assigned")

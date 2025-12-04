@@ -14,13 +14,13 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	cli, err := client.New(cfg)
+	apiClient, err := client.New(cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
-	if err := cli.DataSources().Delete(ctx, "webhook_example"); err != nil {
+	if err := apiClient.DataSources().Delete(ctx, "webhook_example"); err != nil {
 		log.Fatal(err)
 	}
 	log.Println("data source deleted")

@@ -18,7 +18,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	cli, err := client.New(cfg)
+	apiClient, err := client.New(cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -31,12 +31,12 @@ func main() {
 		dependentBlueprint = "example_feature_blueprint"
 		dependentTitle     = "Example Feature Blueprint"
 	)
-	ensureBlueprint(ctx, cli, dependentBlueprint, dependentTitle, map[string]any{
+	ensureBlueprint(ctx, apiClient, dependentBlueprint, dependentTitle, map[string]any{
 		"name":        map[string]any{"type": "string"},
 		"description": map[string]any{"type": "string"},
 	}, nil)
 
-	ensureBlueprint(ctx, cli, ownerBlueprint, ownerDisplayTitle, map[string]any{
+	ensureBlueprint(ctx, apiClient, ownerBlueprint, ownerDisplayTitle, map[string]any{
 		"name":  map[string]any{"type": "string"},
 		"owner": map[string]any{"type": "string"},
 	}, map[string]blueprints.Relation{
@@ -50,9 +50,9 @@ func main() {
 	fmt.Println("Blueprint scaffolding complete.")
 }
 
-func ensureBlueprint(ctx context.Context, cli *client.Client, id, title string, properties map[string]any, relations map[string]blueprints.Relation) {
+func ensureBlueprint(ctx context.Context, apiClient *client.Client, id, title string, properties map[string]any, relations map[string]blueprints.Relation) {
 	existed := false
-	if _, err := cli.Blueprints().Get(ctx, id); err == nil {
+	if _, err := apiClient.Blueprints().Get(ctx, id); err == nil {
 		existed = true
 	} else {
 		var perr *porter.Error
@@ -67,7 +67,7 @@ func ensureBlueprint(ctx context.Context, cli *client.Client, id, title string, 
 		Relations:  relations,
 		Icon:       "Cube",
 	}
-	if err := cli.Blueprints().Upsert(ctx, bp); err != nil {
+	if err := apiClient.Blueprints().Upsert(ctx, bp); err != nil {
 		log.Fatalf("failed to upsert blueprint %s: %v", id, err)
 	}
 	if existed {

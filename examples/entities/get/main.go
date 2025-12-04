@@ -15,7 +15,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	cli, err := client.New(cfg)
+	apiClient, err := client.New(cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -26,7 +26,7 @@ func main() {
 		blueprintID = "example_blueprint"
 		entityID    = "example_entity"
 	)
-	ent, err := cli.Entities().Get(ctx, blueprintID, entityID)
+	ent, err := apiClient.Entities().Get(ctx, blueprintID, entityID)
 	if err != nil {
 		log.Fatal(err)
 	}

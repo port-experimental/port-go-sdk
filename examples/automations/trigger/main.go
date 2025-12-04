@@ -15,13 +15,13 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	cli, err := client.New(cfg)
+	apiClient, err := client.New(cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
-	err = cli.Automations().Trigger(ctx, "automation_id", automations.ExecutionRequest{
+	err = apiClient.Automations().Trigger(ctx, "automation_id", automations.ExecutionRequest{
 		Context: map[string]any{"source": "example"},
 	})
 	if err != nil {

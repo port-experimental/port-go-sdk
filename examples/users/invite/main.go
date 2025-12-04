@@ -22,7 +22,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	cli, err := client.New(cfg)
+	apiClient, err := client.New(cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -33,7 +33,7 @@ func main() {
 		Email: targetEmail,
 		Roles: []string{"Member"},
 	}
-	if err := cli.Users().Invite(ctx, req); err != nil {
+	if err := apiClient.Users().Invite(ctx, req); err != nil {
 		log.Fatal(err)
 	}
 	log.Printf("invited %s\n", targetEmail)

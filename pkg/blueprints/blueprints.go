@@ -79,6 +79,20 @@ func (s *Service) Delete(ctx context.Context, identifier string) error {
 	return s.doer.Do(ctx, "DELETE", path, nil, nil)
 }
 
+// RenameProperty changes the identifier of a property within a blueprint schema.
+func (s *Service) RenameProperty(ctx context.Context, blueprintID, propertyID, newName string) error {
+	if blueprintID == "" || propertyID == "" || newName == "" {
+		return fmt.Errorf("blueprint, property and new names are required")
+	}
+	body := map[string]string{"newPropertyName": newName}
+	path := fmt.Sprintf(
+		"/v1/blueprints/%s/properties/%s/rename",
+		url.PathEscape(blueprintID),
+		url.PathEscape(propertyID),
+	)
+	return s.doer.Do(ctx, "PATCH", path, body, nil)
+}
+
 // Relation defines a blueprint relation.
 type Relation struct {
 	Title    string `json:"title"`

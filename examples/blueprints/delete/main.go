@@ -14,13 +14,13 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	cli, err := client.New(cfg)
+	apiClient, err := client.New(cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
-	if err := cli.Blueprints().Delete(ctx, "example_blueprint"); err != nil {
+	if err := apiClient.Blueprints().Delete(ctx, "example_blueprint"); err != nil {
 		log.Fatal(err)
 	}
 	log.Println("blueprint example_blueprint deleted")

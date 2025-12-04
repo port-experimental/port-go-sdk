@@ -15,7 +15,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	cli, err := client.New(cfg)
+	apiClient, err := client.New(cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -32,7 +32,7 @@ func main() {
 			},
 		},
 	}
-	if err := cli.Blueprints().Upsert(ctx, bp); err != nil {
+	if err := apiClient.Blueprints().Upsert(ctx, bp); err != nil {
 		log.Fatal(err)
 	}
 	log.Printf("blueprint %s upserted\n", blueprintID)

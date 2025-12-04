@@ -14,7 +14,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	cli, err := client.New(cfg)
+	apiClient, err := client.New(cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -29,7 +29,7 @@ func main() {
 			},
 		},
 	}
-	if err := cli.DataSources().SetMapping(ctx, "webhook_example", mapping); err != nil {
+	if err := apiClient.DataSources().SetMapping(ctx, "webhook_example", mapping); err != nil {
 		log.Fatal(err)
 	}
 	log.Println("mapping uploaded")
