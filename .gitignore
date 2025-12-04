@@ -1,0 +1,22 @@
+# Binaries
+bin/
+dist/
+*.exe
+*.tmp
+
+# Go
+*.test
+*.out
+coverage.txt
+
+# Modules / tooling
+.DS_Store
+/vendor/
+
+# IDE/editor
+.idea/
+.vscode/settings.json
+
+# Env / secrets
+.env
+.env.*
