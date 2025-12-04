@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
-	"strconv"
 
 	"github.com/port-experimental/port-go-sdk/pkg/porter"
 )
@@ -37,15 +36,18 @@ type Entity struct {
 
 // ListOptions control pagination/filtering.
 type ListOptions struct {
-	Query   string
-	Page    int
-	PerPage int
+	Include []string
+	Exclude []string
+	Query   map[string]any
+	From    string
+	Limit   int
 }
 
-// ListResponse wraps entity lists.
+// ListResponse wraps entity lists returned from the search endpoint.
 type ListResponse struct {
-	Data       []Entity               `json:"data"`
-	Pagination map[string]interface{} `json:"pagination,omitempty"`
+	Entities []Entity `json:"entities"`
+	Next     string   `json:"next,omitempty"`
+	OK       bool     `json:"ok"`
 }
 
 // Create creates a new entity.
@@ -99,23 +101,30 @@ func (s *Service) Delete(ctx context.Context, blueprint, identifier string) erro
 // List returns entities for a blueprint with optional filters.
 func (s *Service) List(ctx context.Context, blueprint string, opts *ListOptions) (ListResponse, error) {
 	var out ListResponse
-	q := url.Values{}
+	var body map[string]any
 	if opts != nil {
-		if opts.Query != "" {
-			q.Set("query", opts.Query)
+		body = map[string]any{}
+		if len(opts.Include) > 0 {
+			body["include"] = opts.Include
 		}
-		if opts.Page > 0 {
-			q.Set("page", strconv.Itoa(opts.Page))
+		if len(opts.Exclude) > 0 {
+			body["exclude"] = opts.Exclude
 		}
-		if opts.PerPage > 0 {
-			q.Set("limit", strconv.Itoa(opts.PerPage))
+		if opts.Query != nil {
+			body["query"] = opts.Query
+		}
+		if opts.From != "" {
+			body["from"] = opts.From
+		}
+		if opts.Limit > 0 {
+			body["limit"] = opts.Limit
+		}
+		if len(body) == 0 {
+			body = nil
 		}
 	}
-	path := fmt.Sprintf("/v1/blueprints/%s/entities", url.PathEscape(blueprint))
-	if len(q) > 0 {
-		path += "?" + q.Encode()
-	}
-	err := s.doer.Do(ctx, "GET", path, nil, &out)
+	path := fmt.Sprintf("/v1/blueprints/%s/entities/search", url.PathEscape(blueprint))
+	err := s.doer.Do(ctx, "POST", path, body, &out)
 	return out, err
 }
 

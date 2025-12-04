@@ -26,12 +26,14 @@ func main() {
 	blueprints := []string{"example_blueprint", "example_feature_blueprint"}
 	for _, bp := range blueprints {
 		resp, err := cli.Entities().List(ctx, bp, &entities.ListOptions{
-			Query:   "",
-			PerPage: 20,
+			Limit: 20,
 		})
 		if err != nil {
 			log.Fatalf("list %s: %v", bp, err)
 		}
-		fmt.Printf("[%s] found %d entities\n", bp, len(resp.Data))
+		fmt.Printf("[%s] found %d entities\n", bp, len(resp.Entities))
+		for _, ent := range resp.Entities {
+			fmt.Printf("  - %s (%s)\n", ent.Identifier, ent.Blueprint)
+		}
 	}
 }

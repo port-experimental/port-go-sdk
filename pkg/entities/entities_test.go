@@ -18,7 +18,7 @@ func (s *stubDoer) Do(ctx context.Context, method, path string, body any, out an
 	s.body = body
 	switch v := out.(type) {
 	case *ListResponse:
-		*v = ListResponse{Data: []Entity{{Identifier: "a"}}}
+		*v = ListResponse{Entities: []Entity{{Identifier: "a"}}, OK: true}
 	case *Entity:
 		*v = Entity{Identifier: "demo"}
 	}
@@ -44,12 +44,35 @@ func TestUpsert(t *testing.T) {
 func TestList(t *testing.T) {
 	stub := &stubDoer{}
 	svc := New(stub)
-	resp, err := svc.List(context.Background(), "bp", &ListOptions{Query: "foo", Page: 2, PerPage: 5})
-	if err != nil || len(resp.Data) != 1 {
+	resp, err := svc.List(context.Background(), "bp", &ListOptions{
+		Query: map[string]any{
+			"combinator": "and",
+			"rules": []map[string]any{
+				{"property": "name", "operator": "=", "value": "demo"},
+			},
+		},
+		Include: []string{"identifier"},
+		Exclude: []string{"properties.large_payload"},
+		Limit:   5,
+	})
+	if err != nil || len(resp.Entities) != 1 || !resp.OK {
 		t.Fatalf("list err %v resp %+v", err, resp)
 	}
-	if stub.path != "/v1/blueprints/bp/entities?limit=5&page=2&query=foo" {
-		t.Fatalf("unexpected query path: %s", stub.path)
+	if stub.method != "POST" {
+		t.Fatalf("expected POST, got %s", stub.method)
+	}
+	if stub.path != "/v1/blueprints/bp/entities/search" {
+		t.Fatalf("unexpected path: %s", stub.path)
+	}
+	body, ok := stub.body.(map[string]any)
+	if !ok {
+		t.Fatalf("unexpected body type: %#v", stub.body)
+	}
+	if body["limit"] != 5 {
+		t.Fatalf("limit missing: %#v", body)
+	}
+	if body["query"].(map[string]any)["combinator"] != "and" {
+		t.Fatalf("query mismatch: %#v", body["query"])
 	}
 }
 
