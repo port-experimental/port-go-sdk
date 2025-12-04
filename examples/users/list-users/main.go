@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/port-experimental/port-go-sdk/pkg/client"
@@ -26,6 +27,20 @@ func main() {
 		log.Fatal(err)
 	}
 	for _, u := range users {
-		fmt.Printf("%s - %s\n", u.Email, u.Role)
+		fmt.Println("-----")
+		fmt.Printf("User: %s (%s)\n", safeDisplay(u.Name), u.Email)
+		fmt.Printf("Role: %s\n", u.Role)
+		if len(u.Teams) > 0 {
+			fmt.Printf("Teams: %s\n", strings.Join(u.Teams, ", "))
+		} else {
+			fmt.Println("Teams: none")
+		}
 	}
+}
+
+func safeDisplay(s string) string {
+	if strings.TrimSpace(s) == "" {
+		return "<unnamed>"
+	}
+	return s
 }

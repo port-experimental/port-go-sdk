@@ -20,6 +20,7 @@ func main() {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
+	// Placeholders for user_id and role_id need to filled when executing
 	if err := cli.Users().AssignRole(ctx, "user_id", "role_id"); err != nil {
 		log.Fatal(err)
 	}
