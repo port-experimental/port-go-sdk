@@ -77,7 +77,8 @@ func (c *clientCredsSource) refresh(ctx context.Context) error {
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode >= 300 {
-		return fmt.Errorf("port auth failed: %s", resp.Status)
+		body, _ := io.ReadAll(resp.Body)
+		return fmt.Errorf("port auth failed: %s %s", resp.Status, bytes.TrimSpace(body))
 	}
 	var out struct {
 		AccessToken string `json:"accessToken"`

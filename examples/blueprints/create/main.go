@@ -22,8 +22,9 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
+	const blueprintID = "example_blueprint"
 	bp := blueprints.Blueprint{
-		Identifier:  "example_blueprint",
+		Identifier:  blueprintID,
 		Title:       "Example Blueprint",
 		Description: "Created via Go SDK",
 		Schema: map[string]any{
@@ -41,5 +42,5 @@ func main() {
 	if err := cli.Blueprints().Upsert(ctx, bp); err != nil {
 		log.Fatal(err)
 	}
-	log.Println("blueprint created")
+	log.Printf("blueprint %s created\n", blueprintID)
 }

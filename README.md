@@ -26,7 +26,9 @@ Or load from `.env` via `config.Load(".env")`.
 
 Examples (per method):
 - Entities: `examples/entities/{list,get,upsert,update,delete,link,unlink}`
-- Blueprints: `examples/blueprints/{list,get,upsert,create,delete}`
+- Blueprints: `examples/blueprints/{list,get,create,upsert,delete}`
 - Automations: `examples/automations/{list,get,executions,trigger}`
+- Data sources: `examples/datasources/{list,get,create,delete,rotate-secret,set-mapping}`
+- Users: `examples/users/{list-users,list-teams,assign-role}`
 
 See `CHECKLIST.md` for remaining coverage work.

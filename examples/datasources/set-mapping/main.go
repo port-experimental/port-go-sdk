@@ -5,7 +5,6 @@ import (
 	"log"
 	"time"
 
-	"github.com/port-experimental/port-go-sdk/pkg/blueprints"
 	"github.com/port-experimental/port-go-sdk/pkg/client"
 	"github.com/port-experimental/port-go-sdk/pkg/config"
 )
@@ -21,19 +20,17 @@ func main() {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
-	const blueprintID = "example_blueprint"
-	bp := blueprints.Blueprint{
-		Identifier: blueprintID,
-		Title:      "Demo Blueprint",
-		Schema: map[string]any{
+	mapping := map[string]any{
+		"blueprint": "example_blueprint",
+		"mapping": map[string]any{
+			"identifier": "{{ event.id }}",
 			"properties": map[string]any{
-				"name":   map[string]any{"type": "string"},
-				"x1name": map[string]any{"type": "string"},
+				"name": "{{ event.name }}",
 			},
 		},
 	}
-	if err := cli.Blueprints().Upsert(ctx, bp); err != nil {
+	if err := cli.DataSources().SetMapping(ctx, "webhook_example", mapping); err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("blueprint %s upserted\n", blueprintID)
+	log.Println("mapping uploaded")
 }

@@ -24,7 +24,7 @@ func TestBlueprintPaths(t *testing.T) {
 	if err := svc.Upsert(context.Background(), Blueprint{Identifier: "foo"}); err != nil {
 		t.Fatalf("upsert err: %v", err)
 	}
-	if stub.path != "/v1/blueprints" {
+	if stub.path != "/v1/blueprints/foo" {
 		t.Fatalf("unexpected path: %s", stub.path)
 	}
 	stub = &stubDoer{}

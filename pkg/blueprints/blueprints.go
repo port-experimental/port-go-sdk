@@ -45,10 +45,13 @@ func (s *Service) Get(ctx context.Context, identifier string) (Blueprint, error)
 	return out, err
 }
 
-// Upsert creates or updates a blueprint.
+// Upsert creates or updates a blueprint (PUT /v1/blueprints/{identifier}).
 func (s *Service) Upsert(ctx context.Context, bp Blueprint) error {
-	path := "/v1/blueprints"
-	return s.doer.Do(ctx, "POST", path, bp, nil)
+	if bp.Identifier == "" {
+		return fmt.Errorf("blueprint identifier required")
+	}
+	path := fmt.Sprintf("/v1/blueprints/%s", url.PathEscape(bp.Identifier))
+	return s.doer.Do(ctx, "PUT", path, bp, nil)
 }
 
 // Delete removes a blueprint.
