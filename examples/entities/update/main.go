@@ -23,21 +23,36 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 
-	const (
-		blueprintID = "example_blueprint"
-		entityID    = "example_entity"
-	)
-	patch := map[string]any{
-		"name":        "Demo Entity v2",
-		"description": "Updated via SDK",
+	targets := []struct {
+		Blueprint string
+		Entity    string
+		Patch     map[string]any
+	}{
+		{
+			Blueprint: "example_blueprint",
+			Entity:    "example_entity",
+			Patch: map[string]any{
+				"name":        "Demo Entity v2",
+				"description": "Updated via SDK",
+			},
+		},
+		{
+			Blueprint: "example_feature_blueprint",
+			Entity:    "example_feature",
+			Patch: map[string]any{
+				"description": "Updated feature description v2",
+			},
+		},
 	}
-	if err := cli.Entities().Update(ctx, blueprintID, entityID, patch); err != nil {
-		var perr *porter.Error
-		if errors.As(err, &perr) && perr.StatusCode == 404 {
-			log.Printf("entity %s not found in %s\n", entityID, blueprintID)
-			return
+	for _, target := range targets {
+		if err := cli.Entities().Update(ctx, target.Blueprint, target.Entity, target.Patch); err != nil {
+			var perr *porter.Error
+			if errors.As(err, &perr) && perr.StatusCode == 404 {
+				log.Printf("entity %s not found in %s\n", target.Entity, target.Blueprint)
+				continue
+			}
+			log.Fatal(err)
 		}
-		log.Fatal(err)
+		log.Printf("entity %s updated in %s\n", target.Entity, target.Blueprint)
 	}
-	log.Println("entity updated")
 }

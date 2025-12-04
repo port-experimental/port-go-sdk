@@ -48,7 +48,7 @@ func TestList(t *testing.T) {
 	if err != nil || len(resp.Data) != 1 {
 		t.Fatalf("list err %v resp %+v", err, resp)
 	}
-	if stub.path != "/v1/blueprints/bp/entities?page=2&per_page=5&query=foo" {
+	if stub.path != "/v1/blueprints/bp/entities?limit=5&page=2&query=foo" {
 		t.Fatalf("unexpected query path: %s", stub.path)
 	}
 }

@@ -23,25 +23,49 @@ func main() {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
-	const (
-		blueprintID = "example_blueprint"
-		entityID    = "example_entity"
-	)
-	ent := entities.Entity{
-		Identifier: entityID,
-		Properties: map[string]any{
-			"name":  "Demo Entity",
-			"owner": "team@example.com",
+	blueprints := []struct {
+		ID     string
+		Entity entities.Entity
+	}{
+		{
+			ID: "example_blueprint",
+			Entity: entities.Entity{
+				Identifier: "example_entity",
+				Properties: map[string]any{
+					"name":  "Demo Entity",
+					"owner": "team@example.com",
+				},
+			},
+		},
+		{
+			ID: "example_feature_blueprint",
+			Entity: entities.Entity{
+				Identifier: "example_feature",
+				Properties: map[string]any{
+					"name":        "AI Feature",
+					"description": "Feature entity used for relation demos",
+				},
+			},
 		},
 	}
-	err = c.Entities().Create(ctx, blueprintID, ent)
+
+	for _, bp := range blueprints {
+		if err := createEntity(ctx, c, bp.ID, bp.Entity); err != nil {
+			log.Fatal(err)
+		}
+	}
+}
+
+func createEntity(ctx context.Context, cli *client.Client, blueprintID string, ent entities.Entity) error {
+	err := cli.Entities().Create(ctx, blueprintID, ent)
 	if err != nil {
 		var perr *porter.Error
 		if errors.As(err, &perr) && perr.StatusCode == 409 {
-			log.Printf("entity %s already exists in %s\n", entityID, blueprintID)
-			return
+			log.Printf("entity %s already exists in %s\n", ent.Identifier, blueprintID)
+			return nil
 		}
-		log.Fatal(err)
+		return err
 	}
-	log.Printf("entity %s created in blueprint %s\n", entityID, blueprintID)
+	log.Printf("entity %s created in blueprint %s\n", ent.Identifier, blueprintID)
+	return nil
 }

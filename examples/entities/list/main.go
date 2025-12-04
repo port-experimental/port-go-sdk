@@ -23,13 +23,15 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	const blueprintID = "example_blueprint"
-	resp, err := cli.Entities().List(ctx, blueprintID, &entities.ListOptions{
-		Query:   "properties.name:Demo",
-		PerPage: 20,
-	})
-	if err != nil {
-		log.Fatal(err)
+	blueprints := []string{"example_blueprint", "example_feature_blueprint"}
+	for _, bp := range blueprints {
+		resp, err := cli.Entities().List(ctx, bp, &entities.ListOptions{
+			Query:   "",
+			PerPage: 20,
+		})
+		if err != nil {
+			log.Fatalf("list %s: %v", bp, err)
+		}
+		fmt.Printf("[%s] found %d entities\n", bp, len(resp.Data))
 	}
-	fmt.Printf("found %d entities\n", len(resp.Data))
 }

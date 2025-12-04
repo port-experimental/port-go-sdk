@@ -29,6 +29,6 @@ Examples (per method):
 - Blueprints: `examples/blueprints/{list,get,create,upsert,delete}`
 - Automations: `examples/automations/{list,get,executions,trigger}`
 - Data sources: `examples/datasources/{list,get,create,delete,rotate-secret,set-mapping}`
-- Users: `examples/users/{list-users,list-teams,assign-role}`
+- Users: `examples/users/{list-users,list-teams,assign-role,invite}` (`invite` reads `PORT_INVITE_EMAIL`)
 
 See `CHECKLIST.md` for remaining coverage work.

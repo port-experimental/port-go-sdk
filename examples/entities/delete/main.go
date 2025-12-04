@@ -22,17 +22,22 @@ func main() {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
-	const (
-		blueprintID = "example_blueprint"
-		entityID    = "example_entity"
-	)
-	if err := cli.Entities().Delete(ctx, blueprintID, entityID); err != nil {
-		var perr *porter.Error
-		if errors.As(err, &perr) && perr.StatusCode == 404 {
-			log.Printf("entity %s already absent from %s\n", entityID, blueprintID)
-			return
-		}
-		log.Fatal(err)
+	targets := []struct {
+		Blueprint string
+		Entity    string
+	}{
+		{"example_blueprint", "example_entity"},
+		{"example_feature_blueprint", "example_feature"},
 	}
-	log.Println("entity deleted")
+	for _, target := range targets {
+		if err := cli.Entities().Delete(ctx, target.Blueprint, target.Entity); err != nil {
+			var perr *porter.Error
+			if errors.As(err, &perr) && perr.StatusCode == 404 {
+				log.Printf("entity %s already absent from %s\n", target.Entity, target.Blueprint)
+				continue
+			}
+			log.Fatal(err)
+		}
+		log.Printf("entity %s deleted from %s\n", target.Entity, target.Blueprint)
+	}
 }

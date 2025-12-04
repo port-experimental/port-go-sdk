@@ -108,7 +108,7 @@ func (s *Service) List(ctx context.Context, blueprint string, opts *ListOptions)
 			q.Set("page", strconv.Itoa(opts.Page))
 		}
 		if opts.PerPage > 0 {
-			q.Set("per_page", strconv.Itoa(opts.PerPage))
+			q.Set("limit", strconv.Itoa(opts.PerPage))
 		}
 	}
 	path := fmt.Sprintf("/v1/blueprints/%s/entities", url.PathEscape(blueprint))
