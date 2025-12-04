@@ -23,7 +23,8 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	resp, err := cli.Entities().List(ctx, "demo_blueprint", &entities.ListOptions{
+	const blueprintID = "example_blueprint"
+	resp, err := cli.Entities().List(ctx, blueprintID, &entities.ListOptions{
 		Query:   "properties.name:Demo",
 		PerPage: 20,
 	})
