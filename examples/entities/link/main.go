@@ -21,7 +21,11 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 
-	if err := cli.Entities().LinkRelation(ctx, "demo_blueprint", "demo", "owner", []string{"user:123"}); err != nil {
+	const (
+		blueprintID = "example_blueprint"
+		entityID    = "example_entity"
+	)
+	if err := cli.Entities().LinkRelation(ctx, blueprintID, entityID, "owner", []string{"user:123"}); err != nil {
 		log.Fatal(err)
 	}
 	log.Println("relation linked")

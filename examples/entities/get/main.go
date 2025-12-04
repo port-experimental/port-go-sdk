@@ -22,7 +22,11 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 
-	ent, err := cli.Entities().Get(ctx, "demo_blueprint", "demo")
+	const (
+		blueprintID = "example_blueprint"
+		entityID    = "example_entity"
+	)
+	ent, err := cli.Entities().Get(ctx, blueprintID, entityID)
 	if err != nil {
 		log.Fatal(err)
 	}

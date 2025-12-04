@@ -20,7 +20,11 @@ func main() {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
-	if err := cli.Entities().Delete(ctx, "demo_blueprint", "demo"); err != nil {
+	const (
+		blueprintID = "example_blueprint"
+		entityID    = "example_entity"
+	)
+	if err := cli.Entities().Delete(ctx, blueprintID, entityID); err != nil {
 		log.Fatal(err)
 	}
 	log.Println("entity deleted")

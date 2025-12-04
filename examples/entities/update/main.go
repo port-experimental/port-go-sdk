@@ -21,11 +21,15 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 
+	const (
+		blueprintID = "example_blueprint"
+		entityID    = "example_entity"
+	)
 	patch := map[string]any{
 		"name":        "Demo Entity v2",
 		"description": "Updated via SDK",
 	}
-	if err := cli.Entities().Update(ctx, "demo_blueprint", "demo", patch); err != nil {
+	if err := cli.Entities().Update(ctx, blueprintID, entityID, patch); err != nil {
 		log.Fatal(err)
 	}
 	log.Println("entity updated")
