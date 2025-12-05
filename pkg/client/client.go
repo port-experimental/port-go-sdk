@@ -6,8 +6,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
+	"os"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/port-experimental/port-go-sdk/pkg/auth"
 	"github.com/port-experimental/port-go-sdk/pkg/config"
@@ -21,6 +25,8 @@ type Client struct {
 	hc          httpx.Doer
 	tokenSource auth.TokenSource
 	userAgent   string
+	verbose     bool
+	logger      *log.Logger
 }
 
 // Option mutates the Client.
@@ -53,6 +59,7 @@ func New(cfg config.Config, opts ...Option) (*Client, error) {
 		c.hc = httpx.New()
 	}
 	c.tokenSource = auth.NewTokenSource(cfg, c.hc)
+	c.initVerboseLogger()
 	return c, nil
 }
 
@@ -80,22 +87,29 @@ func (c *Client) Do(ctx context.Context, method, path string, body any, out any)
 		return err
 	}
 	req.Header.Set("Authorization", "Bearer "+token)
+	start := time.Now()
+	c.verbosef("--> %s %s", method, path)
 	resp, err := httpx.DoWithRetry(ctx, c.hc, req, 3)
 	if err != nil {
+		c.verbosef("<!! %s %s error=%v", method, path, err)
 		return err
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode >= 300 {
 		payload, _ := io.ReadAll(resp.Body)
-		return &porter.Error{
+		err := &porter.Error{
 			StatusCode: resp.StatusCode,
 			Message:    fmt.Sprintf("port api: %s %s", resp.Status, path),
 			Body:       payload,
 		}
+		c.verbosef("<-- %s %s status=%d duration=%s", method, path, resp.StatusCode, time.Since(start))
+		return err
 	}
 	if out != nil {
+		defer c.verbosef("<-- %s %s status=%d duration=%s", method, path, resp.StatusCode, time.Since(start))
 		return json.NewDecoder(resp.Body).Decode(out)
 	}
+	c.verbosef("<-- %s %s status=%d duration=%s", method, path, resp.StatusCode, time.Since(start))
 	return nil
 }
 
@@ -117,4 +131,33 @@ func (c *Client) ping(ctx context.Context) error {
 		return fmt.Errorf("ping failed: %s", resp.Status)
 	}
 	return nil
+}
+
+func (c *Client) initVerboseLogger() {
+	raw, ok := os.LookupEnv("PORT_SDK_VERBOSE")
+	if !ok {
+		return
+	}
+	enabled, err := strconv.ParseBool(raw)
+	if err != nil || !enabled {
+		return
+	}
+	logPath := os.Getenv("PORT_SDK_VERBOSE_FILE")
+	if logPath == "" {
+		logPath = "port-sdk-http.log"
+	}
+	f, err := os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o600)
+	var w io.Writer = os.Stdout
+	if err == nil {
+		w = f
+	}
+	c.logger = log.New(w, "[port-sdk] ", log.LstdFlags|log.Lmicroseconds)
+	c.verbose = true
+}
+
+func (c *Client) verbosef(format string, args ...any) {
+	if !c.verbose || c.logger == nil {
+		return
+	}
+	c.logger.Printf(format, args...)
 }
