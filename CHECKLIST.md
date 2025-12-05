@@ -68,7 +68,7 @@ Top-level goal: implement a ground-up Go SDK (`github.com/port-experimental/port
 
 ## Examples & Documentation
 - [x] Create `docs/overview.md` (installation, auth, region config).
-- [ ] Document configuration patterns (env vars, functional options).
+- [x] Document configuration patterns (env vars, functional options).
 - [ ] `examples/README.md` describing layout.
 - [ ] For each endpoint:
   - [ ] Add runnable example under `examples/<group>/<endpoint>.go`.
