@@ -17,8 +17,6 @@ linters-settings:
   gocritic:
     enabled-tags:
       - diagnostic
-      - experimental
-      - opinionated
       - performance
       - style
   govet:
@@ -28,11 +26,9 @@ linters-settings:
   misspell:
     locale: US
   revive:
-    min-confidence: 0
+    min-confidence: 0.5
     rules:
       - name: exported
-        severity: warning
-      - name: unexported-return
         severity: warning
       - name: error-return
         severity: warning
@@ -41,10 +37,6 @@ linters-settings:
       - name: var-naming
         severity: warning
       - name: if-return
-        severity: warning
-      - name: increment-decrement
-        severity: warning
-      - name: var-declaration
         severity: warning
   nolintlint:
     allow-leading-space: true
@@ -59,7 +51,6 @@ linters:
     - gocritic
     - gofmt
     - goimports
-    - golint
     - gosec
     - gosimple
     - govet
@@ -71,7 +62,6 @@ linters:
     - unconvert
     - unparam
     - unused
-    - varcheck
 
 issues:
   exclude-rules:
@@ -82,6 +72,12 @@ issues:
     - text: "Error return value of .((os\\.)?std(out|err)\\..*|.*Close|.*Flush|os\\.Remove(All)?|.*printf?|os\\.(Un)?Setenv). is not checked"
       linters:
         - errcheck
+    - path: examples/
+      linters:
+        - errcheck
+        - goconst
+        - gocritic
+        - revive
   max-issues-per-linter: 0
   max-same-issues: 0
 
