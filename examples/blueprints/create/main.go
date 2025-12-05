@@ -34,7 +34,7 @@ func main() {
 	ensureBlueprint(ctx, apiClient, dependentBlueprint, dependentTitle, map[string]any{
 		"name":        map[string]any{"type": "string"},
 		"description": map[string]any{"type": "string"},
-	}, nil)
+	}, nil, nil)
 
 	ensureBlueprint(ctx, apiClient, ownerBlueprint, ownerDisplayTitle, map[string]any{
 		"name":  map[string]any{"type": "string"},
@@ -45,12 +45,17 @@ func main() {
 			Target: dependentBlueprint,
 			Many:   true,
 		},
+	}, map[string]any{
+		"feature_names": map[string]any{
+			"path":  "features.name",
+			"title": "Feature Names",
+		},
 	})
 
 	fmt.Println("Blueprint scaffolding complete.")
 }
 
-func ensureBlueprint(ctx context.Context, apiClient *client.Client, id, title string, properties map[string]any, relations map[string]blueprints.Relation) {
+func ensureBlueprint(ctx context.Context, apiClient *client.Client, id, title string, properties map[string]any, relations map[string]blueprints.Relation, mirrorProps map[string]any) {
 	existed := false
 	if _, err := apiClient.Blueprints().Get(ctx, id); err == nil {
 		existed = true
@@ -60,10 +65,14 @@ func ensureBlueprint(ctx context.Context, apiClient *client.Client, id, title st
 			log.Fatalf("failed to check blueprint: %v", err)
 		}
 	}
+	schema := map[string]any{"properties": properties}
+	if mirrorProps != nil {
+		schema["mirrorProperties"] = mirrorProps
+	}
 	bp := blueprints.Blueprint{
 		Identifier: id,
 		Title:      title,
-		Schema:     map[string]any{"properties": properties},
+		Schema:     schema,
 		Relations:  relations,
 		Icon:       "Cube",
 	}

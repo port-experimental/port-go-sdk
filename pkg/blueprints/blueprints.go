@@ -93,10 +93,80 @@ func (s *Service) RenameProperty(ctx context.Context, blueprintID, propertyID, n
 	return s.doer.Do(ctx, "PATCH", path, body, nil)
 }
 
+// RenameMirrorProperty changes the identifier of a mirror property.
+func (s *Service) RenameMirrorProperty(ctx context.Context, blueprintID, mirrorID, newName string) error {
+	if blueprintID == "" || mirrorID == "" || newName == "" {
+		return fmt.Errorf("blueprint, mirror and new names are required")
+	}
+	body := map[string]string{"newMirrorName": newName}
+	path := fmt.Sprintf(
+		"/v1/blueprints/%s/mirror/%s/rename",
+		url.PathEscape(blueprintID),
+		url.PathEscape(mirrorID),
+	)
+	return s.doer.Do(ctx, "PATCH", path, body, nil)
+}
+
+// RenameRelation changes the identifier of a relation on a blueprint.
+func (s *Service) RenameRelation(ctx context.Context, blueprintID, relationID, newName string) error {
+	if blueprintID == "" || relationID == "" || newName == "" {
+		return fmt.Errorf("blueprint, relation and new names are required")
+	}
+	body := map[string]string{"newRelationIdentifier": newName}
+	path := fmt.Sprintf(
+		"/v1/blueprints/%s/relations/%s/rename",
+		url.PathEscape(blueprintID),
+		url.PathEscape(relationID),
+	)
+	return s.doer.Do(ctx, "PATCH", path, body, nil)
+}
+
 // Relation defines a blueprint relation.
 type Relation struct {
 	Title    string `json:"title"`
 	Target   string `json:"target"`
 	Many     bool   `json:"many"`
 	Required bool   `json:"required,omitempty"`
+}
+
+// BlueprintPermissions represents RBAC rules applied to a blueprint.
+type BlueprintPermissions struct {
+	Entities *BlueprintEntityPermissions `json:"entities,omitempty"`
+}
+
+// BlueprintEntityPermissions controls access to blueprint entities.
+type BlueprintEntityPermissions struct {
+	Read             *BlueprintPermissionRule           `json:"read,omitempty"`
+	Register         *BlueprintPermissionRule           `json:"register,omitempty"`
+	Update           *BlueprintPermissionRule           `json:"update,omitempty"`
+	Unregister       *BlueprintPermissionRule           `json:"unregister,omitempty"`
+	UpdateProperties map[string]BlueprintPermissionRule `json:"updateProperties,omitempty"`
+	UpdateRelations  map[string]BlueprintPermissionRule `json:"updateRelations,omitempty"`
+}
+
+// BlueprintPermissionRule describes who can perform a given action.
+type BlueprintPermissionRule struct {
+	Users       []string       `json:"users,omitempty"`
+	Teams       []string       `json:"teams,omitempty"`
+	Roles       []string       `json:"roles,omitempty"`
+	OwnedByTeam bool           `json:"ownedByTeam,omitempty"`
+	Policy      map[string]any `json:"policy,omitempty"`
+}
+
+// GetPermissions fetches the permissions configured for a blueprint.
+func (s *Service) GetPermissions(ctx context.Context, blueprintID string) (BlueprintPermissions, error) {
+	path := fmt.Sprintf("/v1/blueprints/%s/permissions", url.PathEscape(blueprintID))
+	var resp struct {
+		Permissions BlueprintPermissions `json:"permissions"`
+	}
+	if err := s.doer.Do(ctx, "GET", path, nil, &resp); err != nil {
+		return BlueprintPermissions{}, err
+	}
+	return resp.Permissions, nil
+}
+
+// UpdatePermissions replaces the permissions configuration of a blueprint.
+func (s *Service) UpdatePermissions(ctx context.Context, blueprintID string, perms BlueprintPermissions) error {
+	path := fmt.Sprintf("/v1/blueprints/%s/permissions", url.PathEscape(blueprintID))
+	return s.doer.Do(ctx, "PATCH", path, perms, nil)
 }
