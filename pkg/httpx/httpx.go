@@ -21,6 +21,9 @@ const defaultUserAgent = "port-go-sdk/0.1"
 
 // rng is a package-level random number generator for jitter calculations.
 // Using a local rand.Rand instance instead of the deprecated global rand.Seed.
+// This is for non-cryptographic use (retry jitter), so math/rand is appropriate.
+//
+//nolint:gosec // G404: math/rand is acceptable for non-cryptographic jitter
 var rng = rand.New(rand.NewSource(time.Now().UnixNano()))
 
 // Doer matches http.Client.Do.
@@ -111,7 +114,10 @@ func cloneRequest(req *http.Request) (*http.Request, error) {
 	if req.Body == nil || req.Body == http.NoBody {
 		return cloned, nil
 	}
-	buf := buffers.Get().(*bytes.Buffer)
+	buf, ok := buffers.Get().(*bytes.Buffer)
+	if !ok {
+		buf = &bytes.Buffer{}
+	}
 	buf.Reset()
 	defer buffers.Put(buf)
 	if _, err := io.Copy(buf, req.Body); err != nil {

@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/url"
 )
 
@@ -25,23 +26,23 @@ func New(doer Doer) *Service {
 
 // Organization models /v1/organization details.
 type Organization struct {
-	ID           string                    `json:"id,omitempty"`
-	Name         string                    `json:"name,omitempty"`
-	Settings     *OrganizationSettings     `json:"settings,omitempty"`
-	Announcement *OrganizationAnnouncement `json:"announcement,omitempty"`
-	Metadata     map[string]any            `json:"metadata,omitempty"`
+	ID           string         `json:"id,omitempty"`
+	Name         string         `json:"name,omitempty"`
+	Settings     *Settings      `json:"settings,omitempty"`
+	Announcement *Announcement  `json:"announcement,omitempty"`
+	Metadata     map[string]any `json:"metadata,omitempty"`
 }
 
-// OrganizationSettings defines organization UI settings.
-type OrganizationSettings struct {
+// Settings defines organization UI settings.
+type Settings struct {
 	HiddenBlueprints []string `json:"hiddenBlueprints,omitempty"`
 	FederatedLogout  bool     `json:"federatedLogout,omitempty"`
 	PortalIcon       string   `json:"portalIcon,omitempty"`
 	PortalTitle      string   `json:"portalTitle,omitempty"`
 }
 
-// OrganizationAnnouncement configures the in-portal banner.
-type OrganizationAnnouncement struct {
+// Announcement configures the in-portal banner.
+type Announcement struct {
 	Enabled bool    `json:"enabled,omitempty"`
 	Content string  `json:"content,omitempty"`
 	Link    *string `json:"link,omitempty"`
@@ -50,16 +51,16 @@ type OrganizationAnnouncement struct {
 
 // UpdateRequest fully replaces organization settings.
 type UpdateRequest struct {
-	Name         string                    `json:"name"`
-	Settings     *OrganizationSettings     `json:"settings,omitempty"`
-	Announcement *OrganizationAnnouncement `json:"announcement,omitempty"`
+	Name         string        `json:"name"`
+	Settings     *Settings     `json:"settings,omitempty"`
+	Announcement *Announcement `json:"announcement,omitempty"`
 }
 
 // PatchRequest partially updates organization settings.
 type PatchRequest struct {
-	Name         *string                   `json:"name,omitempty"`
-	Settings     *OrganizationSettings     `json:"settings,omitempty"`
-	Announcement *OrganizationAnnouncement `json:"announcement,omitempty"`
+	Name         *string       `json:"name,omitempty"`
+	Settings     *Settings     `json:"settings,omitempty"`
+	Announcement *Announcement `json:"announcement,omitempty"`
 }
 
 // SecretMetadata describes a stored secret (metadata only).
@@ -98,7 +99,7 @@ type SecretResponse struct {
 // Get fetches organization details.
 func (s *Service) Get(ctx context.Context) (Organization, error) {
 	var resp organizationResponse
-	if err := s.doer.Do(ctx, "GET", "/v1/organization", nil, &resp); err != nil {
+	if err := s.doer.Do(ctx, "GET", "/v1/organization", http.NoBody, &resp); err != nil {
 		return Organization{}, err
 	}
 	return resp.Organization, nil
@@ -144,7 +145,7 @@ func (s *Service) Patch(ctx context.Context, req PatchRequest) error {
 // ListSecrets fetches organization secret metadata.
 func (s *Service) ListSecrets(ctx context.Context) (SecretsResponse, error) {
 	var out SecretsResponse
-	if err := s.doer.Do(ctx, "GET", "/v1/organization/secrets", nil, &out); err != nil {
+	if err := s.doer.Do(ctx, "GET", "/v1/organization/secrets", http.NoBody, &out); err != nil {
 		return SecretsResponse{}, err
 	}
 	return out, nil
@@ -163,7 +164,7 @@ func (s *Service) CreateSecret(ctx context.Context, req CreateSecretRequest) (Se
 func (s *Service) GetSecret(ctx context.Context, name string) (SecretResponse, error) {
 	var out SecretResponse
 	path := fmt.Sprintf("/v1/organization/secrets/%s", url.PathEscape(name))
-	if err := s.doer.Do(ctx, "GET", path, nil, &out); err != nil {
+	if err := s.doer.Do(ctx, "GET", path, http.NoBody, &out); err != nil {
 		return SecretResponse{}, err
 	}
 	return out, nil
@@ -185,5 +186,5 @@ func (s *Service) DeleteSecret(ctx context.Context, name string) error {
 	var resp struct {
 		OK bool `json:"ok"`
 	}
-	return s.doer.Do(ctx, "DELETE", path, nil, &resp)
+	return s.doer.Do(ctx, "DELETE", path, http.NoBody, &resp)
 }

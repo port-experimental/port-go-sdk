@@ -32,15 +32,15 @@ import (
 
 // Client is the root Port API client.
 type Client struct {
-	baseURL     string
-	hc          httpx.Doer
-	tokenSource auth.TokenSource
-	userAgent   string
-	verbose     bool
-	logger      *log.Logger
-	logFile     *os.File // Track file handle for cleanup
-	respLimit   int64
-	bufferPool  sync.Pool
+	baseURL       string
+	hc            httpx.Doer
+	tokenSource   auth.TokenSource
+	userAgent     string
+	verbose       bool
+	logger        *log.Logger
+	logFile       *os.File // Track file handle for cleanup
+	respLimit     int64
+	bufferPool    sync.Pool
 	retryAttempts int // Number of retry attempts for failed requests
 }
 
@@ -85,10 +85,10 @@ func New(cfg config.Config, opts ...Option) (*Client, error) {
 		return nil, err
 	}
 	c := &Client{
-		baseURL:      strings.TrimRight(cfg.BaseEndpoint(), "/"),
-		hc:           httpx.New(),
-		userAgent:    "port-go-sdk/0.1",
-		respLimit:    10 << 20,
+		baseURL:       strings.TrimRight(cfg.BaseEndpoint(), "/"),
+		hc:            httpx.New(),
+		userAgent:     "port-go-sdk/0.1",
+		respLimit:     10 << 20,
 		retryAttempts: 3, // Default to 3 retry attempts
 		bufferPool: sync.Pool{
 			New: func() any { return new(bytes.Buffer) },
@@ -110,7 +110,7 @@ func New(cfg config.Config, opts ...Option) (*Client, error) {
 // into out (if non-nil). It handles authentication, retries, and error handling.
 // This method is exported so service packages can invoke Port API endpoints.
 //
-// The context controls the request lifetime. If the context is cancelled or
+// The context controls the request lifetime. If the context is canceled or
 // times out, the request will be aborted.
 //
 // If out is nil, the response body is discarded. Otherwise, it must be a pointer
@@ -176,9 +176,10 @@ func (c *Client) Do(ctx context.Context, method, path string, body any, out any)
 	return nil
 }
 
-// ping ensures credentials are valid.
-func (c *Client) ping(ctx context.Context) error {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.baseURL+"/v1/health", nil)
+// Ping ensures credentials are valid by checking the health endpoint.
+// This method is exported for users who want to verify their credentials.
+func (c *Client) Ping(ctx context.Context) error {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.baseURL+"/v1/health", http.NoBody)
 	if err != nil {
 		return fmt.Errorf("ping: failed to create request: %w", err)
 	}
@@ -244,7 +245,7 @@ func (c *Client) verbosef(format string, args ...any) {
 // sanitizeLogArg removes sensitive information from log arguments.
 func (c *Client) sanitizeLogArg(arg any) any {
 	if arg == nil {
-		return arg
+		return nil
 	}
 	switch v := arg.(type) {
 	case string:
@@ -299,7 +300,11 @@ func (c *Client) encodeBody(body any) (io.Reader, func(), error) {
 }
 
 func (c *Client) getBuffer() *bytes.Buffer {
-	buf := c.bufferPool.Get().(*bytes.Buffer)
+	raw := c.bufferPool.Get()
+	buf, ok := raw.(*bytes.Buffer)
+	if !ok || buf == nil {
+		buf = &bytes.Buffer{}
+	}
 	buf.Reset()
 	return buf
 }

@@ -76,12 +76,12 @@ func (s *Service) Invite(ctx context.Context, req InviteRequest) error {
 	if strings.TrimSpace(req.Email) == "" {
 		return fmt.Errorf("invite email required")
 	}
-	payload := map[string]any{
-		"invitee": map[string]any{
-			"email": req.Email,
-		},
+	invitee := map[string]any{
+		"email": req.Email,
 	}
-	invitee := payload["invitee"].(map[string]any)
+	payload := map[string]any{
+		"invitee": invitee,
+	}
 	if len(req.Roles) > 0 {
 		invitee["roles"] = req.Roles
 	}

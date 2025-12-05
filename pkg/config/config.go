@@ -9,6 +9,13 @@ import (
 	"github.com/joho/godotenv"
 )
 
+const (
+	// DefaultEUBaseURL is the default EU region API base URL.
+	DefaultEUBaseURL = "https://api.port.io"
+	// DefaultUSBaseURL is the default US region API base URL.
+	DefaultUSBaseURL = "https://api.us.port.io"
+)
+
 // Config captures the high-level SDK settings. Additional per-client
 // options will layer on top of this struct.
 type Config struct {
@@ -21,11 +28,12 @@ type Config struct {
 
 // Load builds a Config from environment variables. If dotenvPath is non-empty,
 // the file will be loaded before reading process environment variables.
+// Missing .env files are ignored (not an error).
 func Load(dotenvPath string) (Config, error) {
 	if dotenvPath != "" {
-		_ = godotenv.Load(dotenvPath)
+		_ = godotenv.Load(dotenvPath) // nolint:errcheck // .env file is optional
 	} else {
-		_ = godotenv.Load()
+		_ = godotenv.Load() // nolint:errcheck // .env file is optional
 	}
 
 	cfg := Config{
@@ -59,9 +67,9 @@ func (c Config) BaseEndpoint() string {
 	}
 	switch strings.ToLower(c.Region) {
 	case "us":
-		return "https://api.us.port.io"
+		return DefaultUSBaseURL
 	case "eu", "":
-		return "https://api.port.io"
+		return DefaultEUBaseURL
 	default:
 		return fmt.Sprintf("https://api.%s.port.io", strings.ToLower(c.Region))
 	}
