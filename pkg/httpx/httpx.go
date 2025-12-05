@@ -21,6 +21,9 @@ const defaultUserAgent = "port-go-sdk/0.1"
 
 // rng is a package-level random number generator for jitter calculations.
 // Using a local rand.Rand instance instead of the deprecated global rand.Seed.
+// This is for non-cryptographic use (retry jitter), so math/rand is appropriate.
+//
+//nolint:gosec // G404: math/rand is acceptable for non-cryptographic jitter
 var rng = rand.New(rand.NewSource(time.Now().UnixNano()))
 
 // Doer matches http.Client.Do.

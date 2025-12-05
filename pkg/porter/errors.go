@@ -62,5 +62,6 @@ func ErrorMessage(err error) string {
 		}
 		return fmt.Sprintf("HTTP %d: %s", perr.StatusCode, httpStatusText(perr.StatusCode))
 	}
-	return err.Error()
+	// err is guaranteed to be non-nil here due to the nil check above
+	return err.Error() //nolint:gocritic // nilValReturn: err is checked for nil above
 }

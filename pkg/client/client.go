@@ -110,7 +110,7 @@ func New(cfg config.Config, opts ...Option) (*Client, error) {
 // into out (if non-nil). It handles authentication, retries, and error handling.
 // This method is exported so service packages can invoke Port API endpoints.
 //
-// The context controls the request lifetime. If the context is cancelled or
+// The context controls the request lifetime. If the context is canceled or
 // times out, the request will be aborted.
 //
 // If out is nil, the response body is discarded. Otherwise, it must be a pointer
@@ -176,9 +176,10 @@ func (c *Client) Do(ctx context.Context, method, path string, body any, out any)
 	return nil
 }
 
-// ping ensures credentials are valid.
-func (c *Client) ping(ctx context.Context) error {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.baseURL+"/v1/health", nil)
+// Ping ensures credentials are valid by checking the health endpoint.
+// This method is exported for users who want to verify their credentials.
+func (c *Client) Ping(ctx context.Context) error {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.baseURL+"/v1/health", http.NoBody)
 	if err != nil {
 		return fmt.Errorf("ping: failed to create request: %w", err)
 	}

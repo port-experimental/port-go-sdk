@@ -42,7 +42,7 @@ func main() {
 	}
 	req := organization.PatchRequest{
 		Name: &name,
-		Settings: &organization.OrganizationSettings{
+		Settings: &organization.Settings{
 			PortalTitle: title,
 		},
 	}

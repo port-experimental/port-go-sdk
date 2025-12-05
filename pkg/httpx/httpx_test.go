@@ -45,7 +45,7 @@ func (errDoer) Do(*http.Request) (*http.Response, error) {
 func TestDoWithRetryStopsOnContextCancel(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Millisecond)
 	defer cancel()
-	req, _ := http.NewRequest(http.MethodGet, "http://example.com", nil)
+	req, _ := http.NewRequest(http.MethodGet, "http://example.com", http.NoBody)
 	if _, err := DoWithRetry(ctx, errDoer{}, req, 5); !errors.Is(err, context.DeadlineExceeded) {
 		t.Fatalf("expected context cancel, got %v", err)
 	}
