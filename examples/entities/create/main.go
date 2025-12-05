@@ -12,6 +12,41 @@ import (
 	"github.com/port-experimental/port-go-sdk/pkg/porter"
 )
 
+var sampleEntities = map[string][]entities.Entity{
+	"example_blueprint": {
+		{
+			Identifier: "example_entity",
+			Properties: map[string]any{
+				"name":  "Demo Entity",
+				"owner": "team@example.com",
+			},
+		},
+	},
+	"example_feature_blueprint": {
+		{
+			Identifier: "example_feature",
+			Properties: map[string]any{
+				"name":        "AI Feature",
+				"description": "Feature entity used for relation demos",
+			},
+		},
+		{
+			Identifier: "example_feature_oncall",
+			Properties: map[string]any{
+				"name":        "Feature Oncall",
+				"description": "Tracks the on-call rotation feature flag",
+			},
+		},
+		{
+			Identifier: "example_feature_payments",
+			Properties: map[string]any{
+				"name":        "Payments Feature",
+				"description": "Handles card capture mutations",
+			},
+		},
+	},
+}
+
 func main() {
 	cfg, err := config.Load(".env")
 	if err != nil {
@@ -23,42 +58,7 @@ func main() {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
-	blueprints := map[string][]entities.Entity{
-		"example_blueprint": {
-			{
-				Identifier: "example_entity",
-				Properties: map[string]any{
-					"name":  "Demo Entity",
-					"owner": "team@example.com",
-				},
-			},
-		},
-		"example_feature_blueprint": {
-			{
-				Identifier: "example_feature",
-				Properties: map[string]any{
-					"name":        "AI Feature",
-					"description": "Feature entity used for relation demos",
-				},
-			},
-			{
-				Identifier: "example_feature_oncall",
-				Properties: map[string]any{
-					"name":        "Feature Oncall",
-					"description": "Tracks the on-call rotation feature flag",
-				},
-			},
-			{
-				Identifier: "example_feature_payments",
-				Properties: map[string]any{
-					"name":        "Payments Feature",
-					"description": "Handles card capture mutations",
-				},
-			},
-		},
-	}
-
-	for blueprintID, ents := range blueprints {
+	for blueprintID, ents := range sampleEntities {
 		for _, ent := range ents {
 			if err := createEntity(ctx, c, blueprintID, ent); err != nil {
 				log.Fatal(err)

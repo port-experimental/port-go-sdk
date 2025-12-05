@@ -1,3 +1,5 @@
+// Package httpx provides HTTP client utilities including retry logic,
+// request cloning, and connection pooling for the Port API SDK.
 package httpx
 
 import (
@@ -17,9 +19,9 @@ import (
 
 const defaultUserAgent = "port-go-sdk/0.1"
 
-func init() {
-	rand.Seed(time.Now().UnixNano())
-}
+// rng is a package-level random number generator for jitter calculations.
+// Using a local rand.Rand instance instead of the deprecated global rand.Seed.
+var rng = rand.New(rand.NewSource(time.Now().UnixNano()))
 
 // Doer matches http.Client.Do.
 type Doer interface {
@@ -85,7 +87,7 @@ func DoWithRetry(ctx context.Context, client Doer, req *http.Request, attempts i
 		}
 		if wait == 0 {
 			backoff := time.Duration(math.Pow(2, float64(i-1))) * time.Second
-			jitter := time.Duration(rand.Intn(500)) * time.Millisecond
+			jitter := time.Duration(rng.Intn(500)) * time.Millisecond
 			wait = backoff + jitter
 		}
 		select {

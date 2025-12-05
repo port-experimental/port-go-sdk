@@ -1,6 +1,7 @@
 package organization
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -96,33 +97,29 @@ type SecretResponse struct {
 
 // Get fetches organization details.
 func (s *Service) Get(ctx context.Context) (Organization, error) {
-	var raw json.RawMessage
-	if err := s.doer.Do(ctx, "GET", "/v1/organization", nil, &raw); err != nil {
+	var resp organizationResponse
+	if err := s.doer.Do(ctx, "GET", "/v1/organization", nil, &resp); err != nil {
 		return Organization{}, err
 	}
-	org, err := decodeOrganization(raw)
-	if err != nil {
-		return Organization{}, err
-	}
-	return org, nil
+	return resp.Organization, nil
 }
 
-func decodeOrganization(raw json.RawMessage) (Organization, error) {
-	var wrapper struct {
-		Organization json.RawMessage `json:"organization"`
-	}
-	if err := json.Unmarshal(raw, &wrapper); err == nil && len(wrapper.Organization) > 0 {
-		var org Organization
-		if err := json.Unmarshal(wrapper.Organization, &org); err != nil {
-			return Organization{}, err
+type organizationResponse struct {
+	Organization Organization
+}
+
+func (o *organizationResponse) UnmarshalJSON(data []byte) error {
+	if bytes.Contains(data, []byte(`"organization"`)) {
+		var envelope struct {
+			Organization Organization `json:"organization"`
 		}
-		return org, nil
+		if err := json.Unmarshal(data, &envelope); err != nil {
+			return err
+		}
+		o.Organization = envelope.Organization
+		return nil
 	}
-	var direct Organization
-	if err := json.Unmarshal(raw, &direct); err != nil {
-		return Organization{}, err
-	}
-	return direct, nil
+	return json.Unmarshal(data, &o.Organization)
 }
 
 // Update replaces the organization name/settings/announcement.

@@ -1,3 +1,5 @@
+// Package entities provides methods for managing Port entities including
+// CRUD operations, bulk operations, relations, search, and aggregation.
 package entities
 
 import (
@@ -51,28 +53,80 @@ type ListOptions struct {
 	Query map[string]any
 	From  string
 	Limit int
+
+	cachedQuery string
+	cacheValid  bool
+}
+
+// MarkDirty invalidates any cached query string.
+func (o *ListOptions) MarkDirty() {
+	if o == nil {
+		return
+	}
+	o.cacheValid = false
+}
+
+func (o *ListOptions) queryString() string {
+	if o == nil {
+		return ""
+	}
+	if o.cacheValid {
+		return o.cachedQuery
+	}
+	values := url.Values{}
+	for _, inc := range o.Include {
+		values.Add("include", inc)
+	}
+	for _, exc := range o.Exclude {
+		values.Add("exclude", exc)
+	}
+	if o.ExcludeCalculatedProperties {
+		values.Set("exclude_calculated_properties", strconv.FormatBool(true))
+	}
+	if o.AttachTitleToRelation {
+		values.Set("attach_title_to_relation", strconv.FormatBool(true))
+	}
+	if o.AttachIdentifierToTitleMirrorProperties {
+		values.Set("attach_identifier_to_title_mirror_properties", strconv.FormatBool(true))
+	}
+	if o.AllowPartialResults {
+		values.Set("allow_partial_results", strconv.FormatBool(true))
+	}
+	o.cachedQuery = values.Encode()
+	o.cacheValid = true
+	return o.cachedQuery
 }
 
 // ListResponse wraps entity lists returned from the search endpoint.
 type ListResponse struct {
 	Entities []Entity `json:"entities"`
-	Next     string   `json:"next,omitempty"`
+	Next     string   `json:"next,omitempty"` // Pagination token for next page
 	OK       bool     `json:"ok"`
 }
 
+// HasMore returns true if there are more pages available.
+func (r ListResponse) HasMore() bool {
+	return r.Next != ""
+}
+
 // Create creates a new entity.
+// The context controls the request lifetime. Recommended timeout: 30 seconds.
+// Returns an error if the entity already exists (use Upsert for idempotent operations).
 func (s *Service) Create(ctx context.Context, blueprint string, ent Entity) error {
 	path := fmt.Sprintf("/v1/blueprints/%s/entities", url.PathEscape(blueprint))
 	return s.doer.Do(ctx, "POST", path, entityPayload(ent), nil)
 }
 
-// Upsert creates or updates an entity.
+// Upsert creates or updates an entity (idempotent operation).
+// The context controls the request lifetime. Recommended timeout: 30 seconds.
+// This method merges properties with existing entities if they already exist.
 func (s *Service) Upsert(ctx context.Context, blueprint string, ent Entity) error {
 	path := fmt.Sprintf("/v1/blueprints/%s/entities?upsert=true&merge=true", url.PathEscape(blueprint))
 	return s.doer.Do(ctx, "POST", path, entityPayload(ent), nil)
 }
 
 // Get fetches an entity by identifier.
+// The context controls the request lifetime. Recommended timeout: 30 seconds.
 func (s *Service) Get(ctx context.Context, blueprint, identifier string) (Entity, error) {
 	var out Entity
 	path := fmt.Sprintf("/v1/blueprints/%s/entities/%s", url.PathEscape(blueprint), url.PathEscape(identifier))
@@ -81,12 +135,17 @@ func (s *Service) Get(ctx context.Context, blueprint, identifier string) (Entity
 }
 
 // Delete removes an entity.
+// The context controls the request lifetime. Recommended timeout: 30 seconds.
 func (s *Service) Delete(ctx context.Context, blueprint, identifier string) error {
 	path := fmt.Sprintf("/v1/blueprints/%s/entities/%s", url.PathEscape(blueprint), url.PathEscape(identifier))
 	return s.doer.Do(ctx, "DELETE", path, nil, nil)
 }
 
 // List returns entities for a blueprint with optional filters.
+// The context controls the request lifetime. Recommended timeout: 30 seconds.
+//
+// For pagination, check the Next field in the response and use SearchBlueprint
+// with the From field set to the Next token value.
 func (s *Service) List(ctx context.Context, blueprint string, opts *ListOptions) (ListResponse, error) {
 	var out ListResponse
 	path := fmt.Sprintf("/v1/blueprints/%s/entities", url.PathEscape(blueprint))
@@ -94,26 +153,7 @@ func (s *Service) List(ctx context.Context, blueprint string, opts *ListOptions)
 		if opts.Query != nil || opts.From != "" || opts.Limit > 0 {
 			return ListResponse{}, fmt.Errorf("entities list: Query/From/Limit are not supported, use Search/SearchBlueprint instead")
 		}
-		values := url.Values{}
-		for _, inc := range opts.Include {
-			values.Add("include", inc)
-		}
-		for _, exc := range opts.Exclude {
-			values.Add("exclude", exc)
-		}
-		if opts.ExcludeCalculatedProperties {
-			values.Set("exclude_calculated_properties", strconv.FormatBool(true))
-		}
-		if opts.AttachTitleToRelation {
-			values.Set("attach_title_to_relation", strconv.FormatBool(true))
-		}
-		if opts.AttachIdentifierToTitleMirrorProperties {
-			values.Set("attach_identifier_to_title_mirror_properties", strconv.FormatBool(true))
-		}
-		if opts.AllowPartialResults {
-			values.Set("allow_partial_results", strconv.FormatBool(true))
-		}
-		if qs := values.Encode(); qs != "" {
+		if qs := opts.queryString(); qs != "" {
 			path += "?" + qs
 		}
 	}
@@ -122,6 +162,8 @@ func (s *Service) List(ctx context.Context, blueprint string, opts *ListOptions)
 }
 
 // Update applies a partial update to entity properties (merge=true).
+// The context controls the request lifetime. Recommended timeout: 30 seconds.
+// This method merges the provided properties with existing entity properties.
 func (s *Service) Update(ctx context.Context, blueprint, identifier string, properties map[string]any) error {
 	path := fmt.Sprintf("/v1/blueprints/%s/entities/%s", url.PathEscape(blueprint), url.PathEscape(identifier))
 	payload := map[string]any{
@@ -166,9 +208,15 @@ type BulkEntityStatus struct {
 }
 
 // BulkUpsert creates or updates up to 20 entities in a single call.
+// The context controls the request lifetime. Recommended timeout: 60 seconds.
+// Returns an error if more than 20 entities are provided.
 func (s *Service) BulkUpsert(ctx context.Context, blueprint string, entities []Entity) (BulkEntitiesResponse, error) {
 	if len(entities) == 0 {
 		return BulkEntitiesResponse{}, fmt.Errorf("entities: at least one entity required for bulk upsert")
+	}
+	const maxBulkUpsert = 20
+	if len(entities) > maxBulkUpsert {
+		return BulkEntitiesResponse{}, fmt.Errorf("entities: bulk upsert supports maximum %d entities, got %d", maxBulkUpsert, len(entities))
 	}
 	items := make([]map[string]any, len(entities))
 	for i, ent := range entities {
@@ -194,9 +242,15 @@ type BulkDeleteResponse struct {
 }
 
 // BulkDelete removes up to 100 entities from a blueprint.
+// The context controls the request lifetime. Recommended timeout: 60 seconds.
+// Returns an error if more than 100 identifiers are provided.
 func (s *Service) BulkDelete(ctx context.Context, blueprint string, identifiers []string, opts *BulkDeleteOptions) (BulkDeleteResponse, error) {
 	if len(identifiers) == 0 {
 		return BulkDeleteResponse{}, fmt.Errorf("entities: at least one identifier required for bulk delete")
+	}
+	const maxBulkDelete = 100
+	if len(identifiers) > maxBulkDelete {
+		return BulkDeleteResponse{}, fmt.Errorf("entities: bulk delete supports maximum %d identifiers, got %d", maxBulkDelete, len(identifiers))
 	}
 	options := BulkDeleteOptions{}
 	if opts != nil {
@@ -227,11 +281,85 @@ type SearchOptions struct {
 }
 
 // Search runs a cross-blueprint entities search.
+// The context controls the request lifetime. Recommended timeout: 30 seconds.
+//
+// For pagination, use the From field in SearchOptions with the Next token
+// from a previous response. Use ListAll to automatically handle pagination.
 func (s *Service) Search(ctx context.Context, opts SearchOptions) (ListResponse, error) {
 	return s.search(ctx, "/v1/entities/search", opts)
 }
 
+// ListAll automatically paginates through all entities matching the search criteria.
+// It collects all entities from all pages and returns them in a single slice.
+// The context controls the request lifetime. Recommended timeout: 60 seconds for large result sets.
+//
+// Example:
+//
+//	opts := entities.SearchOptions{
+//		Query: map[string]any{"composite": map[string]any{"operator": "and", "rules": []any{}}},
+//		Limit: 100,
+//	}
+//	allEntities, err := svc.ListAll(ctx, opts)
+func (s *Service) ListAll(ctx context.Context, opts SearchOptions) ([]Entity, error) {
+	var allEntities []Entity
+	from := opts.From
+	
+	for {
+		opts.From = from
+		resp, err := s.Search(ctx, opts)
+		if err != nil {
+			return nil, err
+		}
+		
+		allEntities = append(allEntities, resp.Entities...)
+		
+		if !resp.HasMore() {
+			break
+		}
+		from = resp.Next
+	}
+	
+	return allEntities, nil
+}
+
+// ListAllBlueprint automatically paginates through all entities in a blueprint.
+// It collects all entities from all pages and returns them in a single slice.
+// The context controls the request lifetime. Recommended timeout: 60 seconds for large result sets.
+//
+// Example:
+//
+//	opts := entities.SearchOptions{
+//		Query: map[string]any{"composite": map[string]any{"operator": "and", "rules": []any{}}},
+//		Limit: 100,
+//	}
+//	allEntities, err := svc.ListAllBlueprint(ctx, "my-blueprint", opts)
+func (s *Service) ListAllBlueprint(ctx context.Context, blueprint string, opts SearchOptions) ([]Entity, error) {
+	var allEntities []Entity
+	from := opts.From
+	
+	for {
+		opts.From = from
+		resp, err := s.SearchBlueprint(ctx, blueprint, opts)
+		if err != nil {
+			return nil, err
+		}
+		
+		allEntities = append(allEntities, resp.Entities...)
+		
+		if !resp.HasMore() {
+			break
+		}
+		from = resp.Next
+	}
+	
+	return allEntities, nil
+}
+
 // SearchBlueprint searches within a given blueprint.
+// The context controls the request lifetime. Recommended timeout: 30 seconds.
+//
+// For pagination, use the From field in SearchOptions with the Next token
+// from a previous response. Use ListAll to automatically handle pagination.
 func (s *Service) SearchBlueprint(ctx context.Context, blueprint string, opts SearchOptions) (ListResponse, error) {
 	path := fmt.Sprintf("/v1/blueprints/%s/entities/search", url.PathEscape(blueprint))
 	return s.search(ctx, path, opts)

@@ -35,6 +35,7 @@ type Blueprint struct {
 }
 
 // List returns all blueprints.
+// The context controls the request lifetime. Recommended timeout: 30 seconds.
 func (s *Service) List(ctx context.Context) ([]Blueprint, error) {
 	var resp struct {
 		Blueprints []Blueprint `json:"blueprints"`
@@ -46,6 +47,7 @@ func (s *Service) List(ctx context.Context) ([]Blueprint, error) {
 }
 
 // Get fetches a blueprint by identifier.
+// The context controls the request lifetime. Recommended timeout: 30 seconds.
 func (s *Service) Get(ctx context.Context, identifier string) (Blueprint, error) {
 	var resp struct {
 		Blueprint Blueprint `json:"blueprint"`

@@ -1,3 +1,5 @@
+// Package webhooks provides utilities for sending and verifying webhook
+// requests with HMAC SHA256 signatures.
 package webhooks
 
 import (
@@ -22,7 +24,10 @@ func Post(ctx context.Context, hc httpx.Doer, url, secret string, payload any) e
 	if err != nil {
 		return err
 	}
-	req, _ := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(body))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(body))
+	if err != nil {
+		return fmt.Errorf("webhook: failed to create request: %w", err)
+	}
 	req.Header.Set("Content-Type", "application/json")
 	httpx.SetUserAgent(req, "")
 	if secret != "" {
@@ -37,6 +42,23 @@ func Post(ctx context.Context, hc httpx.Doer, url, secret string, payload any) e
 		return fmt.Errorf("webhook POST failed: %s", resp.Status)
 	}
 	return nil
+}
+
+// VerifySignature verifies that the provided signature matches the expected
+// HMAC SHA256 signature for the given payload and secret.
+// This is useful for verifying incoming webhook requests from Port.
+//
+// Example:
+//
+//	signature := r.Header.Get("X-Signature")
+//	body, _ := io.ReadAll(r.Body)
+//	if !webhooks.VerifySignature(secret, body, signature) {
+//		http.Error(w, "Invalid signature", http.StatusUnauthorized)
+//		return
+//	}
+func VerifySignature(secret string, payload []byte, signature string) bool {
+	expected := sign(secret, payload)
+	return hmac.Equal([]byte(expected), []byte(signature))
 }
 
 func sign(secret string, payload []byte) string {

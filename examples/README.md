@@ -1,6 +1,16 @@
 # Examples
 
-Small, runnable entrypoints that exercise each service in the SDK. Every example loads configuration from `.env` using `config.Load(".env")`, so create a file at the repo root (or export the variables) with the usual credentials:
+Small, runnable entrypoints that exercise each service in the SDK. Every example loads configuration from `.env` using `config.Load(".env")`, so create a file at the repo root (or export the variables) with the usual credentials.
+
+## Prerequisites
+
+- Go 1.22 or later
+- A Port account with API credentials
+- A `.env` file in the repository root (or environment variables set)
+
+## Configuration
+
+Create a `.env` file in the repository root with your credentials:
 
 | Variable | Purpose |
 | --- | --- |
@@ -23,6 +33,90 @@ PORT_CLIENT_ID=... PORT_CLIENT_SECRET=... go run ./examples/entities/upsert
 ```
 
 Several programs contain placeholder blueprint/entity/datasource IDs—replace them with IDs from your Port account before running.
+
+## Common Patterns
+
+### Error Handling
+
+All examples demonstrate proper error handling. The SDK uses typed errors (`porter.Error`) that include HTTP status codes:
+
+```go
+entity, err := cli.Entities().Get(ctx, "blueprint", "identifier")
+if err != nil {
+    var perr *porter.Error
+    if errors.As(err, &perr) {
+        switch perr.StatusCode {
+        case 404:
+            log.Println("Entity not found")
+        case 401:
+            log.Println("Authentication failed")
+        default:
+            log.Printf("API error: %v", err)
+        }
+    }
+    return err
+}
+```
+
+### Context Usage
+
+All API methods accept a `context.Context` for cancellation and timeouts:
+
+```go
+ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+defer cancel()
+
+// Use ctx in API calls
+entities, err := cli.Entities().List(ctx, "blueprint", nil)
+```
+
+### Pagination
+
+For endpoints that return paginated results, use the `ListAll` or `ListAllBlueprint` helpers:
+
+```go
+opts := entities.SearchOptions{
+    Query: map[string]any{
+        "composite": map[string]any{
+            "operator": "and",
+            "rules": []any{},
+        },
+    },
+    Limit: 100,
+}
+allEntities, err := cli.Entities().ListAllBlueprint(ctx, "my-blueprint", opts)
+```
+
+Or handle pagination manually:
+
+```go
+opts := entities.SearchOptions{Limit: 100}
+var allEntities []entities.Entity
+
+for {
+    resp, err := cli.Entities().SearchBlueprint(ctx, "blueprint", opts)
+    if err != nil {
+        return err
+    }
+    allEntities = append(allEntities, resp.Entities...)
+    if !resp.HasMore() {
+        break
+    }
+    opts.From = resp.Next
+}
+```
+
+### Resource Cleanup
+
+Always close the client when done to release resources (especially important when using verbose logging):
+
+```go
+cli, err := client.New(cfg)
+if err != nil {
+    log.Fatal(err)
+}
+defer cli.Close()
+```
 
 ## Catalog
 

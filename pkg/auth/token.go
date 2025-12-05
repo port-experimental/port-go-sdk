@@ -67,8 +67,14 @@ func (c *clientCredsSource) refresh(ctx context.Context) error {
 		"clientId":     c.cfg.ClientID,
 		"clientSecret": c.cfg.ClientSecret,
 	}
-	b, _ := json.Marshal(payload)
-	req, _ := http.NewRequestWithContext(ctx, http.MethodPost, c.cfg.BaseEndpoint()+"/v1/auth/access_token", bytes.NewReader(b))
+	b, err := json.Marshal(payload)
+	if err != nil {
+		return fmt.Errorf("port auth: failed to marshal request: %w", err)
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.cfg.BaseEndpoint()+"/v1/auth/access_token", bytes.NewReader(b))
+	if err != nil {
+		return fmt.Errorf("port auth: failed to create request: %w", err)
+	}
 	req.Header.Set("Content-Type", "application/json")
 	httpx.SetUserAgent(req, "")
 	resp, err := httpx.DoWithRetry(ctx, c.hc, req, 3)
@@ -77,7 +83,10 @@ func (c *clientCredsSource) refresh(ctx context.Context) error {
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode >= 300 {
-		body, _ := io.ReadAll(resp.Body)
+		body, readErr := io.ReadAll(resp.Body)
+		if readErr != nil {
+			return fmt.Errorf("port auth failed: %s (failed to read error body: %v)", resp.Status, readErr)
+		}
 		return fmt.Errorf("port auth failed: %s %s", resp.Status, bytes.TrimSpace(body))
 	}
 	var out struct {
