@@ -28,6 +28,7 @@ import (
 	"github.com/port-experimental/port-go-sdk/pkg/config"
 	"github.com/port-experimental/port-go-sdk/pkg/httpx"
 	"github.com/port-experimental/port-go-sdk/pkg/porter"
+	"github.com/port-experimental/port-go-sdk/pkg/version"
 )
 
 // Client is the root Port API client.
@@ -87,7 +88,7 @@ func New(cfg config.Config, opts ...Option) (*Client, error) {
 	c := &Client{
 		baseURL:       strings.TrimRight(cfg.BaseEndpoint(), "/"),
 		hc:            httpx.New(),
-		userAgent:     "port-go-sdk/0.1",
+		userAgent:     version.UserAgent(),
 		respLimit:     10 << 20,
 		retryAttempts: 3, // Default to 3 retry attempts
 		bufferPool: sync.Pool{
