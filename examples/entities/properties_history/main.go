@@ -24,7 +24,7 @@ func main() {
 	defer cancel()
 
 	req := entities.PropertiesHistoryRequest{
-		EntityIdentifier:    "demo_service_a",
+		EntityIdentifier:    "example_entity",
 		BlueprintIdentifier: "example_blueprint",
 		PropertyNames:       []string{"name"},
 		TimeInterval:        "day",
