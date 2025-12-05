@@ -29,9 +29,9 @@ func main() {
 			"combinator": "and",
 			"rules": []map[string]any{
 				{
-					"property": "$blueprint",
-					"operator": "=",
-					"value":    "example_feature_blueprint",
+					"property": "$identifier",
+					"operator": "contains",
+					"value":    "example_feature",
 				},
 			},
 		},

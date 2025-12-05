@@ -87,7 +87,11 @@ func (c *Client) Do(ctx context.Context, method, path string, body any, out any)
 	defer resp.Body.Close()
 	if resp.StatusCode >= 300 {
 		payload, _ := io.ReadAll(resp.Body)
-		return &porter.Error{StatusCode: resp.StatusCode, Message: string(payload), Body: payload}
+		return &porter.Error{
+			StatusCode: resp.StatusCode,
+			Message:    fmt.Sprintf("port api: %s %s", resp.Status, path),
+			Body:       payload,
+		}
 	}
 	if out != nil {
 		return json.NewDecoder(resp.Body).Decode(out)

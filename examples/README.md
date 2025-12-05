@@ -35,6 +35,10 @@ Several programs contain placeholder blueprint/entity/datasource IDs—replace t
   - `bulk_delete`: remove batches with optional cascade.
   - `link` / `unlink`: manage relations.
   - `search`, `aggregate`, `aggregate_over_time`, `properties_history`: query/insight helpers.
+- **organization/**
+  - `get`: inspect org metadata/banner settings.
+  - `patch`: update portal settings (title/icon/announcement).
+  - `secrets`: list secrets and optionally create/update/delete one when env vars provided.
 - **blueprints/**
   - `list`, `get`: enumerate definitions.
   - `create`, `upsert`, `update`, `delete`: mutate blueprint schemas.

@@ -6,6 +6,7 @@ import (
 	"github.com/port-experimental/port-go-sdk/pkg/blueprints"
 	"github.com/port-experimental/port-go-sdk/pkg/datasources"
 	"github.com/port-experimental/port-go-sdk/pkg/entities"
+	"github.com/port-experimental/port-go-sdk/pkg/organization"
 	"github.com/port-experimental/port-go-sdk/pkg/users"
 )
 
@@ -37,4 +38,9 @@ func (c *Client) Users() *users.Service {
 // Auth exposes authentication routes.
 func (c *Client) Auth() *auth.Service {
 	return auth.NewService(c)
+}
+
+// Organization exposes org management routes.
+func (c *Client) Organization() *organization.Service {
+	return organization.New(c)
 }
