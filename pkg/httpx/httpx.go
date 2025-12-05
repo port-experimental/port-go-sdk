@@ -15,9 +15,11 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/port-experimental/port-go-sdk/pkg/version"
 )
 
-const defaultUserAgent = "port-go-sdk/0.1"
+var defaultUserAgent = version.UserAgent()
 
 // rng is a package-level random number generator for jitter calculations.
 // Using a local rand.Rand instance instead of the deprecated global rand.Seed.

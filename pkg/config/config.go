@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"os"
 	"strings"
-
-	"github.com/joho/godotenv"
 )
 
 const (
@@ -31,9 +29,9 @@ type Config struct {
 // Missing .env files are ignored (not an error).
 func Load(dotenvPath string) (Config, error) {
 	if dotenvPath != "" {
-		_ = godotenv.Load(dotenvPath) // nolint:errcheck // .env file is optional
+		_ = loadDotEnvFile(dotenvPath) //nolint:errcheck // .env file is optional
 	} else {
-		_ = godotenv.Load() // nolint:errcheck // .env file is optional
+		_ = loadDotEnvFile(".env") //nolint:errcheck // .env file is optional
 	}
 
 	cfg := Config{
