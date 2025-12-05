@@ -303,22 +303,22 @@ func (s *Service) Search(ctx context.Context, opts SearchOptions) (ListResponse,
 func (s *Service) ListAll(ctx context.Context, opts SearchOptions) ([]Entity, error) {
 	var allEntities []Entity
 	from := opts.From
-	
+
 	for {
 		opts.From = from
 		resp, err := s.Search(ctx, opts)
 		if err != nil {
 			return nil, err
 		}
-		
+
 		allEntities = append(allEntities, resp.Entities...)
-		
+
 		if !resp.HasMore() {
 			break
 		}
 		from = resp.Next
 	}
-	
+
 	return allEntities, nil
 }
 
@@ -336,22 +336,22 @@ func (s *Service) ListAll(ctx context.Context, opts SearchOptions) ([]Entity, er
 func (s *Service) ListAllBlueprint(ctx context.Context, blueprint string, opts SearchOptions) ([]Entity, error) {
 	var allEntities []Entity
 	from := opts.From
-	
+
 	for {
 		opts.From = from
 		resp, err := s.SearchBlueprint(ctx, blueprint, opts)
 		if err != nil {
 			return nil, err
 		}
-		
+
 		allEntities = append(allEntities, resp.Entities...)
-		
+
 		if !resp.HasMore() {
 			break
 		}
 		from = resp.Next
 	}
-	
+
 	return allEntities, nil
 }
 

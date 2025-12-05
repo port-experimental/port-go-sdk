@@ -32,15 +32,15 @@ import (
 
 // Client is the root Port API client.
 type Client struct {
-	baseURL     string
-	hc          httpx.Doer
-	tokenSource auth.TokenSource
-	userAgent   string
-	verbose     bool
-	logger      *log.Logger
-	logFile     *os.File // Track file handle for cleanup
-	respLimit   int64
-	bufferPool  sync.Pool
+	baseURL       string
+	hc            httpx.Doer
+	tokenSource   auth.TokenSource
+	userAgent     string
+	verbose       bool
+	logger        *log.Logger
+	logFile       *os.File // Track file handle for cleanup
+	respLimit     int64
+	bufferPool    sync.Pool
 	retryAttempts int // Number of retry attempts for failed requests
 }
 
@@ -85,10 +85,10 @@ func New(cfg config.Config, opts ...Option) (*Client, error) {
 		return nil, err
 	}
 	c := &Client{
-		baseURL:      strings.TrimRight(cfg.BaseEndpoint(), "/"),
-		hc:           httpx.New(),
-		userAgent:    "port-go-sdk/0.1",
-		respLimit:    10 << 20,
+		baseURL:       strings.TrimRight(cfg.BaseEndpoint(), "/"),
+		hc:            httpx.New(),
+		userAgent:     "port-go-sdk/0.1",
+		respLimit:     10 << 20,
 		retryAttempts: 3, // Default to 3 retry attempts
 		bufferPool: sync.Pool{
 			New: func() any { return new(bytes.Buffer) },

@@ -1,6 +1,8 @@
 package porter
 
-import "fmt"
+import (
+	"fmt"
+)
 
 // Error wraps Port API error responses with HTTP metadata.
 type Error struct {
@@ -17,6 +19,11 @@ func (e *Error) Error() string {
 		return fmt.Sprintf("port api: %d %s: %s", e.StatusCode, httpStatusText(e.StatusCode), e.Message)
 	}
 	return fmt.Sprintf("port api: %d %s", e.StatusCode, httpStatusText(e.StatusCode))
+}
+
+// Unwrap allows the error to work with errors.Is and errors.As.
+func (e *Error) Unwrap() error {
+	return nil
 }
 
 func httpStatusText(code int) string {
