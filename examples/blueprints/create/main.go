@@ -37,8 +37,13 @@ func main() {
 	}, nil)
 
 	ensureBlueprint(ctx, apiClient, ownerBlueprint, ownerDisplayTitle, map[string]any{
-		"name":  map[string]any{"type": "string"},
-		"owner": map[string]any{"type": "string"},
+		"name":        map[string]any{"type": "string"},
+		"owner":       map[string]any{"type": "string"},
+		"description": map[string]any{"type": "string"},
+		"environment": map[string]any{
+			"type": "string",
+			"enum": []string{"development", "staging", "production"},
+		},
 	}, map[string]blueprints.Relation{
 		"features": {
 			Title:  "Features",
