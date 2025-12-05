@@ -69,16 +69,16 @@ Top-level goal: implement a ground-up Go SDK (`github.com/port-experimental/port
 ## Examples & Documentation
 - [x] Create `docs/overview.md` (installation, auth, region config).
 - [x] Document configuration patterns (env vars, functional options).
-- [ ] `examples/README.md` describing layout.
+- [x] `examples/README.md` describing layout.
 - [ ] For each endpoint:
   - [ ] Add runnable example under `examples/<group>/<endpoint>.go`.
   - [ ] Include comments describing prerequisites (tokens, IDs).
   - [ ] Ensure examples compile via `go test ./examples/...` or `go vet`.
-- [ ] Update top-level README with:
+- [x] Update top-level README with:
   - [x] Quick start sample.
-  - [ ] Region selection snippet.
-  - [ ] Auth snippet (client credentials + personal token).
-  - [ ] Link matrix to docs/examples per API group.
+  - [x] Region selection snippet.
+  - [x] Auth snippet (client credentials + personal token).
+  - [x] Link matrix to docs/examples per API group.
 
 ## Tooling / Validation
 - [x] Add `scripts/test.sh` to run `go test ./...` and build/ci-check examples.
