@@ -56,7 +56,7 @@ Or load from `.env` via `config.Load(".env")`.
 ## Examples
 
 See `examples/README.md` for runnable snippets covering entities, blueprints, data sources, automations, and users. Highlights:
-- Entities: `examples/entities/{list,get,create,upsert,update,delete,bulk_upsert,bulk_delete,link,unlink,search}`
+- Entities: `examples/entities/{list,get,create,upsert,update,delete,bulk_upsert,bulk_delete,link,unlink,search,aggregate,aggregate_over_time,properties_history}`
 - Blueprints: `examples/blueprints/{list,get,create,upsert,delete}`
 - Automations: `examples/automations/{list,get,executions,trigger}`
 - Data sources: `examples/datasources/{list,get,create,delete,rotate-secret,set-mapping}`

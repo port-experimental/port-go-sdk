@@ -34,7 +34,7 @@ Several programs contain placeholder blueprint/entity/datasource IDs—replace t
   - `upsert`, `bulk_upsert`: idempotent single/batch writes.
   - `bulk_delete`: remove batches with optional cascade.
   - `link` / `unlink`: manage relations.
-  - `search`: filtered results (blueprint scoped).
+  - `search`, `aggregate`, `aggregate_over_time`, `properties_history`: query/insight helpers.
 - **blueprints/**
   - `list`, `get`: enumerate definitions.
   - `create`, `upsert`, `update`, `delete`: mutate blueprint schemas.
