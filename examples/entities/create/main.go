@@ -23,13 +23,9 @@ func main() {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
-	blueprints := []struct {
-		ID     string
-		Entity entities.Entity
-	}{
-		{
-			ID: "example_blueprint",
-			Entity: entities.Entity{
+	blueprints := map[string][]entities.Entity{
+		"example_blueprint": {
+			{
 				Identifier: "example_entity",
 				Properties: map[string]any{
 					"name":  "Demo Entity",
@@ -37,21 +33,36 @@ func main() {
 				},
 			},
 		},
-		{
-			ID: "example_feature_blueprint",
-			Entity: entities.Entity{
+		"example_feature_blueprint": {
+			{
 				Identifier: "example_feature",
 				Properties: map[string]any{
 					"name":        "AI Feature",
 					"description": "Feature entity used for relation demos",
 				},
 			},
+			{
+				Identifier: "example_feature_oncall",
+				Properties: map[string]any{
+					"name":        "Feature Oncall",
+					"description": "Tracks the on-call rotation feature flag",
+				},
+			},
+			{
+				Identifier: "example_feature_payments",
+				Properties: map[string]any{
+					"name":        "Payments Feature",
+					"description": "Handles card capture mutations",
+				},
+			},
 		},
 	}
 
-	for _, bp := range blueprints {
-		if err := createEntity(ctx, c, bp.ID, bp.Entity); err != nil {
-			log.Fatal(err)
+	for blueprintID, ents := range blueprints {
+		for _, ent := range ents {
+			if err := createEntity(ctx, c, blueprintID, ent); err != nil {
+				log.Fatal(err)
+			}
 		}
 	}
 }

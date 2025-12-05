@@ -2,12 +2,12 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"time"
 
 	"github.com/port-experimental/port-go-sdk/pkg/client"
 	"github.com/port-experimental/port-go-sdk/pkg/config"
+	"github.com/port-experimental/port-go-sdk/pkg/entities"
 )
 
 func main() {
@@ -22,15 +22,12 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	blueprints := []string{"example_blueprint", "example_feature_blueprint"}
-	for _, bp := range blueprints {
-		resp, err := apiClient.Entities().List(ctx, bp, nil)
-		if err != nil {
-			log.Fatalf("list %s: %v", bp, err)
-		}
-		fmt.Printf("[%s] found %d entities\n", bp, len(resp.Entities))
-		for _, ent := range resp.Entities {
-			fmt.Printf("  - %s (%s)\n", ent.Identifier, ent.Blueprint)
-		}
+	ids := []string{"demo_service_a", "demo_service_b"}
+	resp, err := apiClient.Entities().BulkDelete(ctx, "example_blueprint", ids, &entities.BulkDeleteOptions{
+		DeleteDependents: false,
+	})
+	if err != nil {
+		log.Fatal(err)
 	}
+	log.Printf("deleted %d entities", len(resp.DeletedEntities))
 }

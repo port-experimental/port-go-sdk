@@ -31,8 +31,10 @@ Several programs contain placeholder blueprint/entity/datasource IDs—replace t
   - `rotate_credentials`: rotate API credentials for the address in `PORT_INVITE_EMAIL`.
 - **entities/**
   - `list`, `get`, `create`, `update`, `delete`: CRUD operations.
-  - `upsert`: idempotent upsert by blueprint/entity ID.
+  - `upsert`, `bulk_upsert`: idempotent single/batch writes.
+  - `bulk_delete`: remove batches with optional cascade.
   - `link` / `unlink`: manage relations.
+  - `search`: filtered results (blueprint scoped).
 - **blueprints/**
   - `list`, `get`: enumerate definitions.
   - `create`, `upsert`, `update`, `delete`: mutate blueprint schemas.
