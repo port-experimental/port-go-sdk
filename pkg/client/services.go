@@ -1,6 +1,7 @@
 package client
 
 import (
+	"github.com/port-experimental/port-go-sdk/pkg/auth"
 	"github.com/port-experimental/port-go-sdk/pkg/automations"
 	"github.com/port-experimental/port-go-sdk/pkg/blueprints"
 	"github.com/port-experimental/port-go-sdk/pkg/datasources"
@@ -31,4 +32,9 @@ func (c *Client) Automations() *automations.Service {
 // Users exposes user/team endpoints.
 func (c *Client) Users() *users.Service {
 	return users.New(c)
+}
+
+// Auth exposes authentication routes.
+func (c *Client) Auth() *auth.Service {
+	return auth.NewService(c)
 }
