@@ -114,7 +114,10 @@ func cloneRequest(req *http.Request) (*http.Request, error) {
 	if req.Body == nil || req.Body == http.NoBody {
 		return cloned, nil
 	}
-	buf := buffers.Get().(*bytes.Buffer)
+	buf, ok := buffers.Get().(*bytes.Buffer)
+	if !ok {
+		buf = &bytes.Buffer{}
+	}
 	buf.Reset()
 	defer buffers.Put(buf)
 	if _, err := io.Copy(buf, req.Body); err != nil {

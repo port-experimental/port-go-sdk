@@ -1,11 +1,6 @@
 run:
   timeout: 5m
   tests: true
-  skip-dirs:
-    - examples
-  skip-files:
-    - ".*\\.pb\\.go$"
-    - ".*\\.gen\\.go$"
 
 linters-settings:
   errcheck:
@@ -23,8 +18,6 @@ linters-settings:
       - hugeParam # API design often requires value semantics
       - paramTypeCombine # Interface{} vs any is a style choice
       - httpNoBody # nil is valid for interface{} body parameters in GET/DELETE requests
-  govet:
-    check-shadowing: true
   gocyclo:
     min-complexity: 15
   misspell:
@@ -68,6 +61,11 @@ linters:
     - unused
 
 issues:
+  exclude-dirs:
+    - examples
+  exclude-files:
+    - ".*\\.pb\\.go$"
+    - ".*\\.gen\\.go$"
   exclude-rules:
     - path: _test\.go
       linters:
@@ -84,4 +82,3 @@ issues:
         - revive
   max-issues-per-linter: 0
   max-same-issues: 0
-

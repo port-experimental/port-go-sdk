@@ -245,7 +245,7 @@ func (c *Client) verbosef(format string, args ...any) {
 // sanitizeLogArg removes sensitive information from log arguments.
 func (c *Client) sanitizeLogArg(arg any) any {
 	if arg == nil {
-		return arg
+		return nil
 	}
 	switch v := arg.(type) {
 	case string:
@@ -300,7 +300,11 @@ func (c *Client) encodeBody(body any) (io.Reader, func(), error) {
 }
 
 func (c *Client) getBuffer() *bytes.Buffer {
-	buf := c.bufferPool.Get().(*bytes.Buffer)
+	raw := c.bufferPool.Get()
+	buf, ok := raw.(*bytes.Buffer)
+	if !ok || buf == nil {
+		buf = &bytes.Buffer{}
+	}
 	buf.Reset()
 	return buf
 }
