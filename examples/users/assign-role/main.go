@@ -20,8 +20,8 @@ func main() {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
-	// Placeholders for user_id and role_id need to filled when executing
-	if err := apiClient.Users().AssignRole(ctx, "user_id", "role_id"); err != nil {
+	// Replace the email and role name when executing.
+	if err := apiClient.Users().AssignRole(ctx, "user@example.com", "Port Admin"); err != nil {
 		log.Fatal(err)
 	}
 	log.Println("role assigned")

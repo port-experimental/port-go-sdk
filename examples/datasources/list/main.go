@@ -21,9 +21,14 @@ func main() {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
-	sources, err := apiClient.DataSources().List(ctx)
+	sources, err := apiClient.DataSources().ListIntegrations(ctx, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("found %d data sources\n", len(sources))
+	fmt.Printf("found %d integrations\n", len(sources))
+	webhooks, err := apiClient.DataSources().ListWebhooks(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("found %d webhooks\n", len(webhooks))
 }

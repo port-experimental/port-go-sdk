@@ -71,4 +71,47 @@ func TestAutomationPaths(t *testing.T) {
 	if stub.path != "/v1/actions?trigger_type=automation&version=v2" {
 		t.Fatalf("bad list path %s", stub.path)
 	}
+
+	stub.resp = append(stub.resp,
+		map[string]any{"actions": []ActionDefinition{{Identifier: "auto1"}}},
+		map[string]any{"action": ActionDefinition{Identifier: "auto1"}},
+	)
+	if _, err := svc.ListDefinitions(context.Background()); err != nil {
+		t.Fatalf("list defs err: %v", err)
+	}
+	if stub.path != "/v1/actions?trigger_type=automation&version=v2" {
+		t.Fatalf("bad list defs path %s", stub.path)
+	}
+	if _, err := svc.GetActionDefinition(context.Background(), "auto1"); err != nil {
+		t.Fatalf("get def err: %v", err)
+	}
+	if stub.path != "/v1/actions/auto1?version=v2" {
+		t.Fatalf("bad get def path %s", stub.path)
+	}
+	def := ActionDefinition{
+		Identifier: "auto1",
+		Trigger:    Trigger{Type: "automation", Event: &TriggerEvent{Type: "ENTITY_CREATED", BlueprintIdentifier: "svc"}},
+		InvocationMethod: map[string]any{
+			"type": "WEBHOOK",
+			"url":  "https://example.com",
+		},
+	}
+	if err := svc.CreateAction(context.Background(), def); err != nil {
+		t.Fatalf("create action err: %v", err)
+	}
+	if stub.path != "/v1/actions" {
+		t.Fatalf("bad create action path %s", stub.path)
+	}
+	if err := svc.UpdateAction(context.Background(), "auto1", def); err != nil {
+		t.Fatalf("update action err: %v", err)
+	}
+	if stub.path != "/v1/actions/auto1" || stub.method != "PUT" {
+		t.Fatalf("bad update action path %s %s", stub.method, stub.path)
+	}
+	if err := svc.DeleteAction(context.Background(), "auto1"); err != nil {
+		t.Fatalf("delete action err: %v", err)
+	}
+	if stub.method != "DELETE" || stub.path != "/v1/actions/auto1" {
+		t.Fatalf("bad delete action path %s %s", stub.method, stub.path)
+	}
 }

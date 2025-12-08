@@ -21,7 +21,7 @@ func main() {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
-	teams, err := apiClient.Users().ListTeams(ctx)
+	teams, err := apiClient.Users().ListTeams(ctx, nil)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -20,7 +20,7 @@ func main() {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
-	if err := apiClient.DataSources().Delete(ctx, "webhook_example"); err != nil {
+	if err := apiClient.DataSources().DeleteWebhook(ctx, "webhook_example"); err != nil {
 		log.Fatal(err)
 	}
 	log.Println("data source deleted")
