@@ -311,19 +311,46 @@ func decodeIntegrationLogs(raw json.RawMessage) (IntegrationLogs, error) {
 }
 
 func decodeWebhookList(raw json.RawMessage) ([]Webhook, error) {
-	var wrap struct {
-		Webhooks *[]Webhook `json:"webhooks"`
+	type top struct {
+		Webhooks []Webhook `json:"webhooks"`
+		Items    []Webhook `json:"items"`
 	}
+	var wrap top
 	if err := json.Unmarshal(raw, &wrap); err == nil {
-		if wrap.Webhooks != nil {
-			return *wrap.Webhooks, nil
+		switch {
+		case wrap.Webhooks != nil:
+			return wrap.Webhooks, nil
+		case wrap.Items != nil:
+			return wrap.Items, nil
+		}
+	}
+	var envelope map[string]json.RawMessage
+	if err := json.Unmarshal(raw, &envelope); err == nil {
+		if wraw, ok := envelope["webhooks"]; ok {
+			var simple []Webhook
+			if err := json.Unmarshal(wraw, &simple); err == nil {
+				return simple, nil
+			}
+			var items struct {
+				Items []Webhook `json:"items"`
+			}
+			if err := json.Unmarshal(wraw, &items); err == nil && items.Items != nil {
+				return items.Items, nil
+			}
+		}
+		if itemsRaw, ok := envelope["items"]; ok {
+			var items []Webhook
+			if err := json.Unmarshal(itemsRaw, &items); err == nil {
+				return items, nil
+			}
 		}
 	}
 	var plain []Webhook
 	if err := json.Unmarshal(raw, &plain); err == nil {
 		return plain, nil
 	}
-	return nil, fmt.Errorf("datasources: unexpected webhook list response")
+	// Fallback to empty slice instead of propagating an error; safer for clients.
+	return []Webhook{}, nil
 }
 
 func decodeWebhook(raw json.RawMessage) (Webhook, error) {

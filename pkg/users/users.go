@@ -261,14 +261,17 @@ func encodeFieldsQuery(opts interface{}) string {
 	default:
 		return ""
 	}
-	if len(fields) == 0 {
+	clean := make([]string, 0, len(fields))
+	for _, f := range fields {
+		if trimmed := strings.TrimSpace(f); trimmed != "" {
+			clean = append(clean, trimmed)
+		}
+	}
+	if len(clean) == 0 {
 		return ""
 	}
 	vals := url.Values{}
-	for _, f := range fields {
-		if strings.TrimSpace(f) == "" {
-			continue
-		}
+	for _, f := range clean {
 		vals.Add("fields", f)
 	}
 	return vals.Encode()
