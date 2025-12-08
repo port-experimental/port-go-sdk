@@ -56,13 +56,15 @@ Top-level goal: implement a ground-up Go SDK (`github.com/port-experimental/port
   - [x] CRUD for data sources.
   - [x] Webhook secret rotation endpoints.
   - [x] Mapping upload/download.
-- [ ] Automations / Triggers:
+- [x] Automations / Triggers:
   - [x] List automations and executions.
   - [x] Trigger execution.
   - [x] Manage schedules (if exposed).
+  - [x] Create/update/delete action definitions.
 - [x] Access / Users / Teams:
   - [x] List users/teams/roles.
   - [x] Assign roles or permissions if API supports it.
+  - [x] Get/update/delete users (with credential rotation) and full team CRUD.
 - [ ] Misc endpoints from Swagger (dashboards, scorecards, etc. if present).
 - [ ] Ensure every endpoint has a corresponding method and typed response.
 

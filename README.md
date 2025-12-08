@@ -9,10 +9,10 @@ Ground-up Go client for the Port REST API (`https://api.port.io/swagger/json`). 
 |-------|------|-----|--------|--------|--------|--------|--------|-----------|
 | Entities | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Blueprints | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |  |  |
-| Automations | ✅ | ✅ | ❌ | ❌ | ❌ |  |  |  |
-| Data Sources | ✅ | ✅ | ✅ | ❌ | ✅ | ❌ |  |  |
+| Automations | ✅ | ✅ | ✅ | ✅ | ✅ |  |  |  |
+| Data Sources | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |  |  |
 | Organization | ✅ | ✅ |  | ✅ |  |  |  |  |
-| Users | ✅ |  | ✅ |  |  |  |  |  |
+| Users | ✅ | ✅ | ✅ | ✅ | ✅ |  |  |  |
 
 ✅ = implemented, ❌ = not yet implemented, blank = not applicable for that topic.
 
@@ -158,6 +158,5 @@ See `examples/README.md` for runnable snippets covering entities, blueprints, da
 - Data sources: `examples/datasources/{list,get,create,delete,rotate-secret,set-mapping}`
 - Organization: `examples/organization/{get,patch,secrets}`
 - Users: `examples/users/{list-users,list-teams,assign-role,invite}` (`invite` reads `PORT_INVITE_EMAIL`)
-
 
 
