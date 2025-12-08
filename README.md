@@ -86,7 +86,7 @@ if err != nil {
 This SDK follows [Semantic Versioning](https://semver.org/). Version tags are available for pinning specific versions:
 
 ```bash
-go get github.com/port-experimental/port-go-sdk@v0.2.2
+go get github.com/port-experimental/port-go-sdk@v0.2.3
 ```
 
 See [CHANGELOG.md](CHANGELOG.md) for detailed release notes.
