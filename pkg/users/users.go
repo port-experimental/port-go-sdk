@@ -19,6 +19,10 @@ func New(doer Doer) *Service {
 	return &Service{doer: doer}
 }
 
+const (
+	pathTeams = "/v1/teams"
+)
+
 // User represents a Port user record.
 type User struct {
 	ID        string     `json:"id"`
@@ -93,7 +97,7 @@ func (s *Service) ListUsers(ctx context.Context, opts *ListUsersOptions) ([]User
 
 // ListTeams returns all teams with optional field filtering.
 func (s *Service) ListTeams(ctx context.Context, opts *ListTeamsOptions) ([]Team, error) {
-	path := "/v1/teams"
+	path := pathTeams
 	if qs := encodeFieldsQuery(opts); qs != "" {
 		path += "?" + qs
 	}
@@ -177,7 +181,7 @@ func (s *Service) CreateTeam(ctx context.Context, req TeamCreateRequest) (Team, 
 	var resp struct {
 		Team Team `json:"team"`
 	}
-	if err := s.doer.Do(ctx, "POST", "/v1/teams", req, &resp); err != nil {
+	if err := s.doer.Do(ctx, "POST", pathTeams, req, &resp); err != nil {
 		return Team{}, err
 	}
 	return resp.Team, nil
