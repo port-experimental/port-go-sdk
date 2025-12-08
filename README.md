@@ -2,6 +2,22 @@
 
 Ground-up Go client for the Port REST API (`https://api.port.io/swagger/json`). Targets both EU (`https://api.port.io`) and US (`https://api.us.port.io`) regions, with `.env`/environment variable configuration.
 
+
+## API Implementation Tracker
+
+| Topic | List | Get | Create | Update | Delete | Upsert | Search | Aggregate |
+|-------|------|-----|--------|--------|--------|--------|--------|-----------|
+| Entities | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Blueprints | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |  |  |
+| Automations | ✅ | ✅ | ❌ | ❌ | ❌ |  |  |  |
+| Data Sources | ✅ | ✅ | ✅ | ❌ | ✅ | ❌ |  |  |
+| Organization | ✅ | ✅ |  | ✅ |  |  |  |  |
+| Users | ✅ |  | ✅ |  |  |  |  |  |
+
+✅ = implemented, ❌ = not yet implemented, blank = not applicable for that topic.
+
+See `CHECKLIST.md` for remaining coverage work.
+
 ## Installation
 
 ```bash
@@ -70,7 +86,7 @@ if err != nil {
 This SDK follows [Semantic Versioning](https://semver.org/). Version tags are available for pinning specific versions:
 
 ```bash
-go get github.com/port-experimental/port-go-sdk@v0.2.2
+go get github.com/port-experimental/port-go-sdk@v0.2.3
 ```
 
 See [CHANGELOG.md](CHANGELOG.md) for detailed release notes.
@@ -143,4 +159,5 @@ See `examples/README.md` for runnable snippets covering entities, blueprints, da
 - Organization: `examples/organization/{get,patch,secrets}`
 - Users: `examples/users/{list-users,list-teams,assign-role,invite}` (`invite` reads `PORT_INVITE_EMAIL`)
 
-See `CHECKLIST.md` for remaining coverage work.
+
+

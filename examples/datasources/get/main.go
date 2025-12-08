@@ -21,9 +21,9 @@ func main() {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
-	ds, err := apiClient.DataSources().Get(ctx, "webhook_id")
+	ds, err := apiClient.DataSources().GetIntegration(ctx, "integration_id", nil)
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("data source %s type=%s\n", ds.Identifier, ds.Type)
+	fmt.Printf("integration %s app=%s\n", ds.Identifier, ds.InstallationAppType)
 }

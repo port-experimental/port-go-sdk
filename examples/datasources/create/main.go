@@ -21,15 +21,29 @@ func main() {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
-	ds := datasources.DataSource{
-		Identifier: "webhook_example",
-		Title:      "Example Webhook",
-		Type:       "webhook",
-		Config: map[string]any{
-			"url": "https://ingest.getport.io/example",
+	enabled := true
+	webhook := datasources.WebhookRequest{
+		Identifier:      "webhook_example",
+		Title:           "Example Webhook",
+		Enabled:         &enabled,
+		IntegrationType: "custom",
+		Mappings: []datasources.WebhookMapping{
+			{
+				"blueprint": "example_blueprint",
+				"entity": map[string]any{
+					"identifier": "{{ event.id }}",
+					"title":      "{{ event.title }}",
+					"properties": map[string]any{
+						"name": "{{ event.name }}",
+					},
+				},
+			},
+		},
+		Security: &datasources.WebhookSecurity{
+			Secret: "replace-me",
 		},
 	}
-	if err := apiClient.DataSources().Create(ctx, ds); err != nil {
+	if _, err := apiClient.DataSources().CreateWebhook(ctx, webhook); err != nil {
 		log.Fatal(err)
 	}
 	log.Println("data source created")

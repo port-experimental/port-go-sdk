@@ -20,8 +20,9 @@ func main() {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
-	if err := apiClient.DataSources().RotateSecret(ctx, "webhook_example"); err != nil {
+	app, err := apiClient.DataSources().RotateAppSecret(ctx, "credential_id")
+	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println("webhook secret rotated")
+	log.Printf("credential %s rotated, new secret=%s\n", app.ID, app.Secret)
 }
