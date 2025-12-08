@@ -3,7 +3,7 @@ package version
 import "strings"
 
 // Version follows semantic versioning (vMAJOR.MINOR.PATCH).
-const Version = "v0.2.3"
+const Version = "v0.2.4"
 
 // UserAgent returns the default user agent string shared by the SDK.
 func UserAgent() string {
