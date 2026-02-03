@@ -61,6 +61,12 @@ Top-level goal: implement a ground-up Go SDK (`github.com/port-experimental/port
   - [x] Trigger execution.
   - [x] Manage schedules (if exposed).
   - [x] Create/update/delete action definitions.
+- [x] Scorecards APIs:
+  - [x] List scorecards (org-wide + per blueprint).
+  - [x] Get scorecard definitions.
+  - [x] Create scorecards.
+  - [x] Update scorecards.
+  - [x] Delete scorecards.
 - [x] Access / Users / Teams:
   - [x] List users/teams/roles.
   - [x] Assign roles or permissions if API supports it.

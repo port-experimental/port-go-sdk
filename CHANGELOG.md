@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+### Added
+- Implemented `pkg/scorecards` with list/get/create/update/delete helpers wired into `client.Client`.
+- Added runnable scorecard examples (`examples/scorecards/{list,get,create}`) and documented the new capability in the README/checklist.
+
+
 ## v0.2.1 - 2025-12-06
 
 ### Added

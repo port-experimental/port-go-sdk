@@ -7,6 +7,7 @@ import (
 	"github.com/port-experimental/port-go-sdk/pkg/datasources"
 	"github.com/port-experimental/port-go-sdk/pkg/entities"
 	"github.com/port-experimental/port-go-sdk/pkg/organization"
+	"github.com/port-experimental/port-go-sdk/pkg/scorecards"
 	"github.com/port-experimental/port-go-sdk/pkg/users"
 )
 
@@ -43,4 +44,9 @@ func (c *Client) Auth() *auth.Service {
 // Organization exposes org management routes.
 func (c *Client) Organization() *organization.Service {
 	return organization.New(c)
+}
+
+// Scorecards exposes scorecard endpoints.
+func (c *Client) Scorecards() *scorecards.Service {
+	return scorecards.New(c)
 }
