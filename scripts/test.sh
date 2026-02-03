@@ -3,17 +3,13 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
-echo "==> gofmt"
-test -z "$(gofmt -l . | tee /dev/stderr)"
+echo "==> make lint"
+make lint
 
-echo "==> go test ./..."
-go test ./...
+echo "==> make test"
+make test
 
-echo "==> build examples"
-for dir in examples/*/*; do
-  if [ -d "$dir" ]; then
-    go build "./$dir"
-  fi
-done
+echo "==> make examples"
+make examples
 
 echo "All checks passed."

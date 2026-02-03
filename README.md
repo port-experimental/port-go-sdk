@@ -159,4 +159,10 @@ See `examples/README.md` for runnable snippets covering entities, blueprints, da
 - Organization: `examples/organization/{get,patch,secrets}`
 - Users: `examples/users/{list-users,list-teams,assign-role,invite}` (`invite` reads `PORT_INVITE_EMAIL`)
 
+## Tooling
+
+- `make tools` (or `./scripts/install_tools.sh`) installs `goimports`, `staticcheck`, and `golangci-lint` into your `GOBIN`.
+- `make lint` combines `goimports` formatting checks, `go vet`, and `golangci-lint` (configured via `.golangci.yml` to run `ineffassign`, `staticcheck`, `govet`, `gofmt`, `goimports`, and `errcheck`).
+- `make test` runs `go test ./...` and `make examples` builds every runnable sample to ensure they stay compiling.
+- `scripts/test.sh` runs `make lint`, `make test`, and `make examples` sequentially for CI-style validation.
 

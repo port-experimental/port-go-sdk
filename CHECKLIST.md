@@ -4,7 +4,7 @@ Top-level goal: implement a ground-up Go SDK (`github.com/port-experimental/port
 
 ## Environment / Setup
 - [x] Confirm Go version (>=1.22), `go env`, and ensure `GOBIN`/`GOMODCACHE` paths writable.
-- [ ] List/install optional tools (`golangci-lint`, `staticcheck`, `goimports`) if desired.
+- [x] List/install optional tools (`golangci-lint`, `staticcheck`, `goimports`) if desired.
 - [x] Create base folders: `cmd/`, `pkg/`, `examples/`, `docs/`, `.github/` (or CI equivalent), `.vscode/`.
 - [x] Run `go mod init github.com/port-experimental/port-go-sdk`.
 - [x] Configure `.gitignore`, `LICENSE`, `README.md` placeholders.
@@ -84,9 +84,9 @@ Top-level goal: implement a ground-up Go SDK (`github.com/port-experimental/port
 
 ## Tooling / Validation
 - [x] Add `scripts/test.sh` to run `go test ./...` and build/ci-check examples.
-- [ ] Optional `makefile` targets (`make test`, `make examples`, `make lint`).
-- [ ] Integrate `go vet` and (optional) `golangci-lint`.
-- [ ] Configure lint rules to enforce Go best practices (ineffassign, staticcheck, govet, gofmt) and document how to run them.
+- [x] Optional `makefile` targets (`make test`, `make examples`, `make lint`).
+- [x] Integrate `go vet` and (optional) `golangci-lint`.
+- [x] Configure lint rules to enforce Go best practices (ineffassign, staticcheck, govet, gofmt) and document how to run them.
 - [ ] When credentials available, smoke-test:
   - [ ] Auth + entity upsert on EU.
   - [ ] Auth + entity get on US.
