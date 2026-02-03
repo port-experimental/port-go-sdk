@@ -81,7 +81,9 @@ func (c *clientCredsSource) refresh(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("port auth: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() {
+		_ = resp.Body.Close()
+	}()
 	if resp.StatusCode >= 300 {
 		body, readErr := io.ReadAll(resp.Body)
 		if readErr != nil {

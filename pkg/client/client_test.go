@@ -15,7 +15,9 @@ func TestClientDo(t *testing.T) {
 			t.Fatalf("missing auth header")
 		}
 		w.Header().Set("Content-Type", "application/json")
-		w.Write([]byte(`{"ok":true}`))
+		if _, err := w.Write([]byte(`{"ok":true}`)); err != nil {
+			t.Fatalf("write response: %v", err)
+		}
 	}))
 	defer srv.Close()
 	cfg := config.Config{

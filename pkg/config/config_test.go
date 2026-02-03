@@ -32,9 +32,15 @@ func TestLoadPrefersToken(t *testing.T) {
 }
 
 func TestLoadRequiresCreds(t *testing.T) {
-	os.Unsetenv("PORT_ACCESS_TOKEN")
-	os.Unsetenv("PORT_CLIENT_ID")
-	os.Unsetenv("PORT_CLIENT_SECRET")
+	if err := os.Unsetenv("PORT_ACCESS_TOKEN"); err != nil {
+		t.Fatalf("unset access token: %v", err)
+	}
+	if err := os.Unsetenv("PORT_CLIENT_ID"); err != nil {
+		t.Fatalf("unset client id: %v", err)
+	}
+	if err := os.Unsetenv("PORT_CLIENT_SECRET"); err != nil {
+		t.Fatalf("unset client secret: %v", err)
+	}
 	if _, err := Load(""); err == nil {
 		t.Fatalf("expected validation error without creds")
 	}

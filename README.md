@@ -13,6 +13,7 @@ Ground-up Go client for the Port REST API (`https://api.port.io/swagger/json`). 
 | Data Sources | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |  |  |
 | Organization | ✅ | ✅ |  | ✅ |  |  |  |  |
 | Users | ✅ | ✅ | ✅ | ✅ | ✅ |  |  |  |
+| Scorecards | ✅ | ✅ | ✅ | ✅ | ✅ |  |  |  |
 
 ✅ = implemented, ❌ = not yet implemented, blank = not applicable for that topic.
 
@@ -86,7 +87,7 @@ if err != nil {
 This SDK follows [Semantic Versioning](https://semver.org/). Version tags are available for pinning specific versions:
 
 ```bash
-go get github.com/port-experimental/port-go-sdk@v0.2.4
+go get github.com/port-experimental/port-go-sdk@v0.3.0
 ```
 
 See [CHANGELOG.md](CHANGELOG.md) for detailed release notes.
@@ -103,6 +104,7 @@ See [CHANGELOG.md](CHANGELOG.md) for detailed release notes.
 | `pkg/blueprints` | Blueprint management: list, get, create, upsert, delete, permissions |
 | `pkg/datasources` | Data source and webhook configuration management |
 | `pkg/automations` | Automation management: list, get, trigger, execution history |
+| `pkg/scorecards` | Scorecard management: list, get, create, update, delete |
 | `pkg/organization` | Organization metadata and secret management |
 | `pkg/users` | User and team management, role assignment |
 | `pkg/webhooks` | Webhook utilities with HMAC SHA256 signature support |
@@ -155,8 +157,14 @@ See `examples/README.md` for runnable snippets covering entities, blueprints, da
 - Entities: `examples/entities/{list,get,create,upsert,update,delete,bulk_upsert,bulk_delete,link,unlink,search,aggregate,aggregate_over_time,properties_history}`
 - Blueprints: `examples/blueprints/{list,get,create,upsert,delete}`
 - Automations: `examples/automations/{list,get,executions,trigger}`
+- Scorecards: `examples/scorecards/{list,get,create}`
 - Data sources: `examples/datasources/{list,get,create,delete,rotate-secret,set-mapping}`
 - Organization: `examples/organization/{get,patch,secrets}`
 - Users: `examples/users/{list-users,list-teams,assign-role,invite}` (`invite` reads `PORT_INVITE_EMAIL`)
 
+## Tooling
 
+- `make tools` (or `./scripts/install_tools.sh`) installs `goimports`, `staticcheck`, and `golangci-lint` into your `GOBIN`.
+- `make lint` combines `goimports` formatting checks, `go vet`, and `golangci-lint` (configured via `.golangci.yml` to run `ineffassign`, `staticcheck`, `govet`, `gofmt`, `goimports`, and `errcheck`).
+- `make test` runs `go test ./...` and `make examples` builds every runnable sample to ensure they stay compiling.
+- `scripts/test.sh` runs `make lint`, `make test`, and `make examples` sequentially for CI-style validation.

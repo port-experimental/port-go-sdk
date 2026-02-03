@@ -37,7 +37,9 @@ func Post(ctx context.Context, hc httpx.Doer, url, secret string, payload any) e
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		_ = resp.Body.Close()
+	}()
 	if resp.StatusCode >= 300 {
 		return fmt.Errorf("webhook POST failed: %s", resp.Status)
 	}

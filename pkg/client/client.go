@@ -149,7 +149,9 @@ func (c *Client) Do(ctx context.Context, method, path string, body any, out any)
 		c.verbosef("<!! %s %s error=%v", method, path, err)
 		return err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		_ = resp.Body.Close()
+	}()
 	if resp.StatusCode >= 300 {
 		payload, readErr := io.ReadAll(resp.Body)
 		if readErr != nil {
@@ -194,7 +196,9 @@ func (c *Client) Ping(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		_ = resp.Body.Close()
+	}()
 	if resp.StatusCode >= 300 {
 		return fmt.Errorf("ping failed: %s", resp.Status)
 	}

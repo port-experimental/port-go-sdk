@@ -145,6 +145,10 @@ defer cli.Close()
   - `list`, `get`: inspect automation definitions.
   - `trigger`: invoke an automation.
   - `executions`: list execution history.
+- **scorecards/**
+  - `list`: enumerate every scorecard in the org.
+  - `get`: inspect the rules and metadata of a single scorecard.
+  - `create`: provision a new scorecard on a blueprint with sample rules.
 - **users/**
   - `list-users`, `list-teams`: enumerate users/teams.
   - `assign-role`: assign a given role to a user (fill in IDs).

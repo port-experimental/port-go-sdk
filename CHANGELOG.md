@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## v0.3.0 - 2026-02-03
+
+### Added
+- Implemented `pkg/scorecards` with list/get/create/update/delete helpers wired into `client.Client`.
+- Added runnable scorecard examples (`examples/scorecards/{list,get,create}`) and documented the new capability in the README/checklist.
+
+### Changed
+- Regenerated `docs/port-openapi.json` from the latest Port swagger (`https://api.port.io/swagger/json`) to ensure the SDK reflects the current API surface and OpenAPI 3.1.0 schema validation.
+
+
 ## v0.2.1 - 2025-12-06
 
 ### Added
