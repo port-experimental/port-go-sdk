@@ -20,25 +20,27 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 	defer cancel()
 
 	blueprintID := setup.BlueprintID
-	scorecardDef := setup.BuildScorecardDefinition()
+	definition := setup.BuildScorecardDefinition()
 
 	if err := setup.EnsureBlueprint(ctx, apiClient, blueprintID); err != nil {
 		log.Fatalf("ensure blueprint: %v", err)
 	}
-	if err := setup.EnsureScorecard(ctx, apiClient, blueprintID, scorecardDef); err != nil {
+	if err := setup.EnsureScorecard(ctx, apiClient, blueprintID, definition); err != nil {
 		log.Fatalf("ensure scorecard: %v", err)
 	}
 
-	scorecard, err := apiClient.Scorecards().Get(ctx, blueprintID, scorecardDef.Identifier)
-	if err != nil {
+	// Mutate the definition before sending an update.
+	definition.Title = "SLO Coverage (updated)"
+	if len(definition.Rules) > 0 {
+		definition.Rules[0].Level = "Silver"
+	}
+
+	if err := apiClient.Scorecards().Update(ctx, blueprintID, definition.Identifier, definition); err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("%s (%s) has %d rules\n", scorecard.Title, scorecard.Identifier, len(scorecard.Rules))
-	for _, rule := range scorecard.Rules {
-		fmt.Printf("- [%s] %s (level=%s)\n", rule.Identifier, rule.Title, rule.Level)
-	}
+	fmt.Printf("updated scorecard %s on blueprint %s\n", definition.Identifier, blueprintID)
 }

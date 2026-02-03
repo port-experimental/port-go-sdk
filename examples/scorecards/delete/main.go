@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -9,6 +10,7 @@ import (
 	"github.com/port-experimental/port-go-sdk/examples/scorecards/internal/setup"
 	"github.com/port-experimental/port-go-sdk/pkg/client"
 	"github.com/port-experimental/port-go-sdk/pkg/config"
+	"github.com/port-experimental/port-go-sdk/pkg/porter"
 )
 
 func main() {
@@ -20,7 +22,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 	defer cancel()
 
 	blueprintID := setup.BlueprintID
@@ -33,12 +35,17 @@ func main() {
 		log.Fatalf("ensure scorecard: %v", err)
 	}
 
-	scorecards, err := apiClient.Scorecards().List(ctx)
-	if err != nil {
+	if err := apiClient.Scorecards().Delete(ctx, blueprintID, definition.Identifier); err != nil {
 		log.Fatal(err)
 	}
-	for _, sc := range scorecards {
-		fmt.Printf("%s (blueprint=%s, rules=%d)\n", sc.Identifier, sc.Blueprint, len(sc.Rules))
+	fmt.Printf("deleted scorecard %s from blueprint %s\n", definition.Identifier, blueprintID)
+
+	// Re-create the sample so the other examples continue to work.
+	if err := setup.EnsureScorecard(ctx, apiClient, blueprintID, definition); err != nil {
+		var perr *porter.Error
+		if errors.As(err, &perr) {
+			log.Fatalf("failed to restore scorecard: %s (%s)", perr.Message, perr.Body)
+		}
+		log.Fatalf("failed to restore scorecard: %v", err)
 	}
-	fmt.Printf("total scorecards: %d\n", len(scorecards))
 }

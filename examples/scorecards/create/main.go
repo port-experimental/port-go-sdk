@@ -2,12 +2,15 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"time"
 
+	"github.com/port-experimental/port-go-sdk/examples/scorecards/internal/setup"
 	"github.com/port-experimental/port-go-sdk/pkg/client"
 	"github.com/port-experimental/port-go-sdk/pkg/config"
+	"github.com/port-experimental/port-go-sdk/pkg/porter"
 	"github.com/port-experimental/port-go-sdk/pkg/scorecards"
 )
 
@@ -23,62 +26,38 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 
-	// Replace with blueprint/rule identifiers that exist in your account.
-	blueprintID := "service"
-
-	definition := scorecards.ScorecardDefinition{
-		Identifier:  "slo-coverage",
-		Title:       "SLO Coverage",
-		Description: "Ensures every service exposes customer-facing SLO metrics.",
-		Levels: []scorecards.ScorecardLevel{
-			{Title: "Gold", Color: "gold"},
-			{Title: "Silver", Color: "silver"},
-			{Title: "Bronze", Color: "bronze"},
-		},
-		Filter: map[string]any{
-			"combinator": "and",
-			"conditions": []any{
-				map[string]any{
-					"property": "tier",
-					"operator": "in",
-					"value":    []any{"1", "2"},
-				},
-			},
-		},
-		Rules: []scorecards.ScorecardRule{
-			{
-				Identifier: "has-slo",
-				Title:      "Has published SLO",
-				Level:      "Gold",
-				Query: map[string]any{
-					"combinator": "and",
-					"conditions": []any{
-						map[string]any{
-							"property": "slo_url",
-							"operator": "isNotEmpty",
-						},
-					},
-				},
-			},
-			{
-				Identifier: "alerts-wired",
-				Title:      "Alerts wired to pager",
-				Level:      "Silver",
-				Query: map[string]any{
-					"combinator": "and",
-					"conditions": []any{
-						map[string]any{
-							"property": "oncall_rotation",
-							"operator": "isNotEmpty",
-						},
-					},
-				},
-			},
-		},
+	// Use a dedicated example blueprint so we don't mutate an existing catalog entry.
+	blueprintID := setup.BlueprintID
+	if err := setup.EnsureBlueprint(ctx, apiClient, blueprintID); err != nil {
+		log.Fatalf("ensure blueprint: %v", err)
 	}
 
-	if err := apiClient.Scorecards().Create(ctx, blueprintID, definition); err != nil {
+	definition := setup.BuildScorecardDefinition()
+
+	if err := createOrUpdateScorecard(ctx, apiClient, blueprintID, definition); err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("created scorecard %s on blueprint %s\n", definition.Identifier, blueprintID)
+	fmt.Printf("scorecard %s is ready on blueprint %s\n", definition.Identifier, blueprintID)
+}
+
+func createOrUpdateScorecard(ctx context.Context, cli *client.Client, blueprintID string, def scorecards.ScorecardDefinition) error {
+	if err := cli.Scorecards().Create(ctx, blueprintID, def); err != nil {
+		var perr *porter.Error
+		if errors.As(err, &perr) && (perr.StatusCode == 409 || perr.StatusCode == 422) {
+			if err := cli.Scorecards().Update(ctx, blueprintID, def.Identifier, def); err != nil {
+				return enrichAPIError(err)
+			}
+			return nil
+		}
+		return enrichAPIError(err)
+	}
+	return nil
+}
+
+func enrichAPIError(err error) error {
+	var perr *porter.Error
+	if errors.As(err, &perr) && len(perr.Body) > 0 {
+		return fmt.Errorf("%w: %s", err, perr.Body)
+	}
+	return err
 }
