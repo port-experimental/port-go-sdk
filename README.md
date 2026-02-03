@@ -87,7 +87,7 @@ if err != nil {
 This SDK follows [Semantic Versioning](https://semver.org/). Version tags are available for pinning specific versions:
 
 ```bash
-go get github.com/port-experimental/port-go-sdk@v0.3.0
+go get github.com/port-experimental/port-go-sdk@v0.3.1
 ```
 
 See [CHANGELOG.md](CHANGELOG.md) for detailed release notes.
@@ -157,7 +157,7 @@ See `examples/README.md` for runnable snippets covering entities, blueprints, da
 - Entities: `examples/entities/{list,get,create,upsert,update,delete,bulk_upsert,bulk_delete,link,unlink,search,aggregate,aggregate_over_time,properties_history}`
 - Blueprints: `examples/blueprints/{list,get,create,upsert,delete}`
 - Automations: `examples/automations/{list,get,executions,trigger}`
-- Scorecards: `examples/scorecards/{list,get,create}`
+- Scorecards: `examples/scorecards/{list,get,create,update,delete}`
 - Data sources: `examples/datasources/{list,get,create,delete,rotate-secret,set-mapping}`
 - Organization: `examples/organization/{get,patch,secrets}`
 - Users: `examples/users/{list-users,list-teams,assign-role,invite}` (`invite` reads `PORT_INVITE_EMAIL`)

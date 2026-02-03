@@ -146,9 +146,11 @@ defer cli.Close()
   - `trigger`: invoke an automation.
   - `executions`: list execution history.
 - **scorecards/**
-  - `list`: enumerate every scorecard in the org.
+  - `list`: enumerate every scorecard in the org (after ensuring the sample exists).
   - `get`: inspect the rules and metadata of a single scorecard.
   - `create`: provision a new scorecard on a blueprint with sample rules.
+  - `update`: mutate the shared sample scorecard (title/rules) to demonstrate updates.
+  - `delete`: remove the shared sample scorecard and re-seed it so other examples continue working.
 - **users/**
   - `list-users`, `list-teams`: enumerate users/teams.
   - `assign-role`: assign a given role to a user (fill in IDs).
