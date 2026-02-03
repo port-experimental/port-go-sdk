@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## v0.3.1 - 2026-02-03
+
+### Added
+- Introduced update/delete scorecard examples that reuse a shared bootstrap helper so each sample can run independently.
+- Added `examples/scorecards/internal/setup` to provision the sandbox blueprint and sample scorecard before every example.
+
+### Changed
+- Scorecard list/get/create examples now seed consistent data before running, preventing 422 errors in fresh environments.
+
 ## v0.3.0 - 2026-02-03
 
 ### Added
